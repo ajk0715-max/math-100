@@ -3,6 +3,7 @@
 import { useEffect } from 'react';
 import { unlockAudio } from '@/audio/sfx';
 import { watchInstall } from './install';
+import { Certificate } from './Certificate';
 import { Diagnostic } from './diagnostic/Diagnostic';
 import { Home } from './Home';
 import { BossRunner } from './lesson/BossRunner';
@@ -50,6 +51,8 @@ function Screens() {
       return <Parent />;
     case 'stickers':
       return <Stickers />;
+    case 'certificate':
+      return <Certificate />;
     case 'village':
       return <Village key={screen.tab ?? 'town'} tab={screen.tab} />;
     default:

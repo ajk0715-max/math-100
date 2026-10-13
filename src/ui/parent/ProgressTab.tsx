@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { hasCertificate } from '@/core/certificate';
 import { BLOCKS, BLOCK_DAYS, firstDayOf, lastReadyDay, lessonFor } from '@/core/curriculum';
 import type { Profile } from '@/core/model';
 import { STATE_LABEL, blockState, canSkip, currentBlock, moveToBlock, type BlockState } from '@/core/progress';
@@ -39,6 +40,16 @@ export function ProgressTab({ notify }: { notify: Notify }) {
 
   return (
     <>
+      {hasCertificate(p) && (
+        <section className="sheet col certcard">
+          <h2>🎓 수료증</h2>
+          <p className="muted">100일 과정을 마쳤어요. 이름을 고쳐 쓰고 인쇄하거나 PDF로 저장할 수 있어요.</p>
+          <button type="button" className="btn sun" onClick={() => go({ name: 'certificate' })}>
+            수료증 열기
+          </button>
+        </section>
+      )}
+
       <section className="sheet col">
         <h2>진도 지도</h2>
         <p className="muted">
@@ -119,7 +130,7 @@ export function ProgressTab({ notify }: { notify: Notify }) {
             >
               {days.map((d) => (
                 <option key={d} value={d}>
-                  {d === p.day ? '▶ ' : ''}Day {d} · {lessonFor(d)?.title ?? ''}
+                  {d === p.day ? '▶ ' : ''}Day {d} · {lessonFor(d, p.settings.optional)?.title ?? ''}
                 </option>
               ))}
             </select>

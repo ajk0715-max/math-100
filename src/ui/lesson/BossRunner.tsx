@@ -65,7 +65,8 @@ export function BossRunner({ block, skip = false }: { block: number; skip?: bool
   const store = useStore();
   const { env, today, go, update, latest } = store;
   const day = block * 5;
-  const lesson = useMemo(() => lessonFor(day), [day]);
+  const optional = store.profile?.settings.optional;
+  const lesson = useMemo(() => lessonFor(day, optional), [day, optional]);
   const def = BLOCKS[block - 1];
 
   const [rec, setRec] = useState<SessionRec | null>(null);
@@ -265,18 +266,21 @@ export function BossRunner({ block, skip = false }: { block: number; skip?: bool
 
   if (phase === 'result' && result) {
     if (result.passed) {
+      // 100일 마지막 보스: 수료증으로 이어진다
+      const last = block === BLOCKS.length;
       return (
         <Summary
-          heading={skip ? '이 단계는 건너뛰어요!' : result.gold ? '금 스티커 획득!' : '보스 격파!'}
+          heading={last ? '100일 완성!' : skip ? '이 단계는 건너뛰어요!' : result.gold ? '금 스티커 획득!' : '보스 격파!'}
           buddy="bear"
           stars={result.stars}
           starsTotal={profile.stars}
           correct={result.correct}
           total={result.total}
-          stampLines={['보스', '격파!']}
-          teaser={block < 20 ? '다음 단계에서 또 만나자!' : null}
-          button="홈으로"
-          onDone={() => go({ name: 'home' }, { replace: true })}
+          stampLines={last ? ['100일', '완성!'] : ['보스', '격파!']}
+          teaser={last ? '100일 동안 정말 잘했어! 수료증을 받으러 가자!' : '다음 단계에서 또 만나자!'}
+          button={last ? '수료증 받기' : '홈으로'}
+          onDone={() => go(last ? { name: 'certificate' } : { name: 'home' }, { replace: true })}
+          secondary={last ? { label: '홈으로', onClick: () => go({ name: 'home' }, { replace: true }) } : undefined}
         >
           <div className={`stickerbig${result.gold ? ' gold' : ''}`} aria-label={`${def.sticker.name} 스티커`}>
             <span className="emo">{def.sticker.emoji}</span>

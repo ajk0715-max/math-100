@@ -112,7 +112,9 @@ describe('수업 계획', () => {
   });
   it('보스 날은 수업 계획이 아니다', () => {
     expect(buildLessonPlan(mkProfile(), 5, 1)).toBeNull();
-    expect(buildLessonPlan(mkProfile(), 99, 1)).toBeNull();
+    expect(buildLessonPlan(mkProfile(), 95, 1)).toBeNull();
+    expect(buildLessonPlan(mkProfile(), 100, 1)).toBeNull();
+    expect(buildLessonPlan(mkProfile(), 99, 1)).not.toBeNull();
   });
 });
 

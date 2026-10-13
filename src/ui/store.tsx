@@ -20,7 +20,8 @@ export type Screen =
   | { name: 'stickers' }
   | { name: 'village'; tab?: 'town' | 'wish' }
   | { name: 'diagnostic'; n?: number }
-  | { name: 'extra'; n?: number };
+  | { name: 'extra'; n?: number }
+  | { name: 'certificate' };
 
 export interface VoicePrefs {
   name: string | null;

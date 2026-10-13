@@ -1,5 +1,6 @@
 import type { AttemptRec, SessionRec } from '@/db/db';
 import { localYmd } from './dates';
+import { josa } from './ko';
 import type { Profile } from './model';
 import { weakSpots } from './session';
 import { getSkill, hasSkill } from './skills';
@@ -145,6 +146,67 @@ export function rangeReport(attempts: AttemptRec[], sessions: SessionRec[], from
     days: new Set(s.filter((x) => x.completed).map((x) => x.day)).size,
     areas: [...byArea.values()].sort((x, y) => y.solved - x.solved),
   };
+}
+
+const pct = (n: number, d: number): number | null => (d > 0 ? Math.round((n / d) * 100) : null);
+
+export interface FinalReport {
+  all: RangeReport;
+  /** Day 1~50 */
+  first: RangeReport;
+  /** Day 51~100 */
+  second: RangeReport;
+  advice: string[];
+}
+
+/** 100일 종합 리포트: 전체와 앞·뒤 50일, 영역별 강약, 앞으로 할 일 */
+export function finalReport(attempts: AttemptRec[], sessions: SessionRec[]): FinalReport {
+  const all = rangeReport(attempts, sessions, 1, 100);
+  const first = rangeReport(attempts, sessions, 1, 50);
+  const second = rangeReport(attempts, sessions, 51, 100);
+  return { all, first, second, advice: finalAdvice(all, first, second) };
+}
+
+const AREA_MIN = 20;
+const HALF_MIN = 30;
+
+/** 보호자에게 건네는 말. 정답률이 아니라 ‘다음에 할 일’로 끝난다. */
+export function finalAdvice(all: RangeReport, first: RangeReport, second: RangeReport): string[] {
+  const out: string[] = [];
+  const total = pct(all.firstRight, all.solved);
+  if (total === null) return ['기록이 아직 적어요. 수업을 마친 뒤에 다시 확인해 주세요.'];
+
+  out.push(
+    total >= 85
+      ? `100일 동안 처음에 바로 맞힌 비율이 ${total}%예요. 배운 내용이 잘 자리 잡았어요.`
+      : total >= 70
+        ? `100일 동안 처음에 바로 맞힌 비율이 ${total}%예요. 대체로 잘 해냈어요.`
+        : `100일 동안 처음에 바로 맞힌 비율이 ${total}%예요. 어려워한 부분이 많았으니 아래 약한 영역을 한 번 더 살펴봐 주세요.`,
+  );
+
+  const a = pct(first.firstRight, first.solved);
+  const b = pct(second.firstRight, second.solved);
+  if (a !== null && b !== null && first.solved >= HALF_MIN && second.solved >= HALF_MIN) {
+    if (b - a >= 3) out.push(`앞 50일은 ${a}%, 뒤 50일은 ${b}%예요. 뒤로 갈수록 내용이 어려워졌는데도 더 안정적이었어요.`);
+    else if (a - b >= 8) out.push(`앞 50일은 ${a}%, 뒤 50일은 ${b}%예요. 뒤 단계 내용이 더 어렵기 때문일 수 있어요. 낮은 영역을 아래에서 확인해 주세요.`);
+    else out.push(`앞 50일은 ${a}%, 뒤 50일은 ${b}%로 비슷하게 이어졌어요.`);
+  }
+
+  const rated = all.areas
+    .filter((x) => x.solved >= AREA_MIN)
+    .map((x) => ({ label: x.label, rate: x.firstRight / x.solved }))
+    .sort((x, y) => y.rate - x.rate);
+  if (rated.length >= 2) {
+    const best = rated[0] as { label: string; rate: number };
+    const worst = rated[rated.length - 1] as { label: string; rate: number };
+    out.push(
+      `가장 안정적인 영역은 ${best.label}${josa(best.label, '이에요/예요')}(${Math.round(best.rate * 100)}%). 상대적으로 약한 영역은 ${worst.label}${josa(worst.label, '이에요/예요')}(${Math.round(worst.rate * 100)}%).`,
+    );
+    if (worst.rate < 0.85) out.push(`${worst.label} 영역은 생활 속에서 한 번씩 더 물어봐 주세요. 진도 탭에서 해당 단계로 돌아가 다시 풀어 보는 방법도 있어요.`);
+  }
+
+  out.push('입학 전까지는 하루 5분 ‘더 놀기’로 감을 유지하고, 시계와 달력은 집 안에서 직접 읽어 보게 해 주세요.');
+  return out;
 }
 
 // ---------------------------------------------------------------------------

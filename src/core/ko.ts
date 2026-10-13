@@ -120,7 +120,7 @@ function finalJong(word: string): number | null {
   return null;
 }
 
-export type JosaKind = '이/가' | '은/는' | '을/를' | '과/와' | '으로/로' | '이에요/예요' | '이랑/랑';
+export type JosaKind = '이/가' | '은/는' | '을/를' | '과/와' | '으로/로' | '이에요/예요' | '이랑/랑' | '이라고/라고';
 
 export function josa(word: string, kind: JosaKind): string {
   const jong = finalJong(word);
@@ -140,6 +140,8 @@ export function josa(word: string, kind: JosaKind): string {
       return has ? '이에요' : '예요';
     case '이랑/랑':
       return has ? '이랑' : '랑';
+    case '이라고/라고':
+      return has ? '이라고' : '라고';
   }
 }
 

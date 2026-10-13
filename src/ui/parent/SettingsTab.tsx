@@ -37,6 +37,8 @@ export function SettingsTab({ notify }: { notify: Notify }) {
 
   const set = (patch: Partial<ProfileSettings>) => update((x) => ({ ...x, settings: { ...x.settings, ...patch } }));
 
+  const setOptional = (patch: Partial<ProfileSettings['optional']>) => set({ optional: { ...st.optional, ...patch } });
+
   const limited = !(st.allowedFrom === '00:00' && st.allowedTo === '24:00');
   const fromMin = parseHm(from);
   const toMin = parseHm(to);
@@ -146,6 +148,17 @@ export function SettingsTab({ notify }: { notify: Notify }) {
           </div>
           <small>수업을 마친 날, 별 없이 게임만 더 해요. 하루 최대 시간을 넘지 않아요.</small>
         </div>
+      </section>
+
+      <section className="sheet col">
+        <h2>선택 과제</h2>
+        <p className="muted">초등 2학년 내용이 섞인 과제 세 가지예요. 꺼 두면 그날은 앞에서 배운 시계·계산을 놀이로 복습하고, 100일 일정과 별은 그대로예요.</p>
+        <div className="switches">
+          <Switch on={st.optional.clock5} onChange={(v) => setOptional({ clock5: v })} label="5분 단위 시계 읽기" sub="Day 78~79 · 긴바늘 숫자에 5씩 세어 몇 시 몇 분을 읽어요" />
+          <Switch on={st.optional.hour60} onChange={(v) => setOptional({ hour60: v })} label="1시간은 60분" sub="Day 83~84 · 1시간의 길이와 1시간 뒤의 시각을 배워요" />
+          <Switch on={st.optional.carry} onChange={(v) => setOptional({ carry: v })} label="받아올림 맛보기 (8 + 5)" sub="Day 92 · 10을 먼저 만들어 계산해 보는 도전이에요" />
+        </div>
+        <p className="fine">아직 오지 않은 날부터 바뀌어요. 이미 마친 날의 기록은 그대로 남아요.</p>
       </section>
 
       <section className="sheet col">

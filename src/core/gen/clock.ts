@@ -182,7 +182,6 @@ const ACTS: { part: Part; emoji: string; label: string }[] = [
   { part: 'noon', emoji: '☀️', label: '해가 하늘 높이 떠 있어요' },
   { part: 'evening', emoji: '🍲', label: '저녁밥을 먹어요' },
   { part: 'evening', emoji: '🌇', label: '해가 져요' },
-  { part: 'evening', emoji: '🏠', label: '집에 돌아와요' },
   { part: 'night', emoji: '🌙', label: '달과 별이 떠요' },
   { part: 'night', emoji: '😴', label: '잠을 자요' },
 ];
@@ -242,14 +241,14 @@ export function daypartGen(c: GenCtx): Question {
 // 몇 시 30분 (정각과 30분 구별, 읽기)
 // ---------------------------------------------------------------------------
 
-const wrap12 = (x: number): number => ((x - 1 + 12) % 12) + 1;
+export const wrap12 = (x: number): number => ((x - 1 + 12) % 12) + 1;
 /** 시계 보기: 시각 말(3시 30분)을 보기로 만든다. 키는 "시:분" */
 export const timeOption = (h: number, m: number): Option => ({ key: `${wrap12(h)}:${m}`, text: timeText(h, m), say: timeKo(h, m) });
 /** 시계 그림 보기. 키는 "시:분" */
 export const clockPick = (h: number, m: number): Option => clockOption(wrap12(h), m, `${wrap12(h)}:${m}`);
 
 /** 정각이면 정각이 아닌 쪽으로, 30분이면 정각 쪽으로 헷갈리기 쉬운 시각들 */
-function nearTimes(h: number, m: number): [number, number][] {
+export function nearTimes(h: number, m: number): [number, number][] {
   return m === 30
     ? [
         [wrap12(h + 1), 30],

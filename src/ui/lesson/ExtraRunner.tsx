@@ -104,7 +104,7 @@ export function ExtraRunner() {
       const usedOthers = sum(others);
       const extraOthers = sum(others.filter((s) => s.kind === 'extra'));
       const own = r?.activeMs ?? 0;
-      const games = unlockedGames(p.doneDays);
+      const games = unlockedGames(p.doneDays, p.settings.optional);
 
       if (games.length === 0 || !extraAvailable(p, new Date(), today, usedOthers + own, extraOthers + own)) {
         if (r) await saveSession({ ...r, endedAt: Date.now() });

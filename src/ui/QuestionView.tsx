@@ -173,7 +173,7 @@ export function QuestionView({ q, theme, buddy, autoHint, autoNext, exam, nextLa
   const canHint = !exam && !!q.hint && !hintOpen && !done;
 
   return (
-    <div className={`qv s-${status}${theme ? ` t-${theme}` : ''}`} data-skill={q.skill} data-answer={q.answer.t}>
+    <div className={`qv s-${status}${theme ? ` t-${theme}` : ''}`} data-skill={q.skill} data-answer={q.answer.t} data-qid={q.id}>
       <section className="qcard sheet stitch">
         <div className="qtools">
           {canHint && (

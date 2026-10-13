@@ -14,6 +14,12 @@ export const GAME_TITLE: Record<GameId, string> = {
   lineup: '막대 줄 세우기',
   seesaw: '시소 놀이',
   shop: '마을 가게',
+  bundle: '선물 포장',
+  pattern: '구슬 꿰기',
+  sort: '장난감 정리',
+  story: '이야기 극장',
+  school: '학교 가는 길',
+  adventure: '종합 모험',
 };
 
 export const GAME_EMOJI: Record<GameId, string> = {
@@ -29,6 +35,12 @@ export const GAME_EMOJI: Record<GameId, string> = {
   lineup: '📏',
   seesaw: '⚖️',
   shop: '🏪',
+  bundle: '🎁',
+  pattern: '🧵',
+  sort: '🧺',
+  story: '🎭',
+  school: '🏫',
+  adventure: '🏰',
 };
 
 export const SECTION_LABEL: Record<Section, string> = {

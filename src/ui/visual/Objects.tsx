@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useMemo, useState, type CSSProperties } from 'react';
 import { say } from '@/audio/speech';
 import { sfx } from '@/audio/sfx';
 import { nativeNum } from '@/core/ko';
@@ -107,7 +107,7 @@ export function Objects({ emoji, n, layout = 'row', crossed = 0, numbered = fals
 
   if (layout === 'scatter' && scatterCells) {
     return (
-      <div className={`scatter ${cls}`} style={{ gridTemplateColumns: `repeat(${scatterCells.c}, 1fr)` }}>
+      <div className={`scatter ${cls}`} style={{ gridTemplateColumns: `repeat(${scatterCells.c}, 1fr)`, ['--c' as string]: scatterCells.c }}>
         {scatterCells.cells.map((cell, i) => (
           <div className="slot" key={i}>
             {cell && (
@@ -119,9 +119,9 @@ export function Objects({ emoji, n, layout = 'row', crossed = 0, numbered = fals
     );
   }
 
-  const style = cols ? { display: 'grid', gridTemplateColumns: `repeat(${cols}, auto)`, justifyContent: 'center' } : undefined;
+  // 한 줄에 놓을 개수가 정해져 있으면 상자 너비에 맞춰 물건 크기를 정한다(CSS .objs.grid)
   return (
-    <div className={cls} style={style}>
+    <div className={cols ? `${cls} grid` : cls} style={cols ? ({ ['--cols' as string]: cols } as CSSProperties) : undefined}>
       {Array.from({ length: n }, (_, i) => renderItem(i))}
     </div>
   );

@@ -1,4 +1,4 @@
-import { lessonFor } from './curriculum';
+import { OPTIONAL_OFF, lessonFor, type OptionalOn } from './curriculum';
 import type { Profile } from './model';
 import { hashSeed, makeRng, shuffle } from './rng';
 import type { Slot } from './session';
@@ -19,18 +19,18 @@ export const EXTRA_GAMES = 3;
  * 아이가 실제로 마친 날들의 보너스 게임. 건너뛴 단계의 게임은 설명 카드를 보지 못했으므로 넣지 않는다.
  * 같은 게임(스킬)은 가장 나중 날의 것 하나만 둔다.
  */
-export function unlockedGames(doneDays: readonly number[]): UnlockedGame[] {
+export function unlockedGames(doneDays: readonly number[], opt: OptionalOn = OPTIONAL_OFF): UnlockedGame[] {
   const byGame = new Map<string, UnlockedGame>();
   for (const d of [...doneDays].sort((a, b) => a - b)) {
-    const g = lessonFor(d)?.game;
+    const g = lessonFor(d, opt)?.game;
     if (g) byGame.set(g.skill, { skill: g.skill, day: d, levels: g.levels });
   }
   return [...byGame.values()];
 }
 
 /** 이미 해 본 게임 중 몇 개를 골라 한 게임씩 이어서 낸다. run이 바뀌면 다른 문제가 나온다. */
-export function buildExtraPlan(profile: Pick<Profile, 'seedSalt' | 'doneDays'>, run: number): Slot[] {
-  const games = unlockedGames(profile.doneDays);
+export function buildExtraPlan(profile: Pick<Profile, 'seedSalt' | 'doneDays'> & { settings?: Pick<Profile['settings'], 'optional'> }, run: number): Slot[] {
+  const games = unlockedGames(profile.doneDays, profile.settings?.optional);
   if (games.length === 0) return [];
   const rng = makeRng(profile.seedSalt, 'extra', run);
   const slots: Slot[] = [];

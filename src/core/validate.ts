@@ -51,6 +51,46 @@ function visualProblems(v: Visual | undefined, where: string, out: string[]): vo
     case 'seesaw':
       if (v.left.n > 6 || v.right.n > 6) out.push(`${where}: seesaw 개수`);
       break;
+    case 'tens':
+      if (!Number.isInteger(v.tens) || !Number.isInteger(v.ones) || v.tens < 0 || v.tens > 10 || v.ones < 0 || v.ones > 9) out.push(`${where}: tens 범위 ${v.tens}/${v.ones}`);
+      else if (v.tens * 10 + v.ones < 1 || v.tens * 10 + v.ones > 100) out.push(`${where}: tens 합 범위`);
+      break;
+    case 'chart': {
+      const cells = v.to - v.from + 1;
+      if (!(v.from >= 0 && v.to > v.from && cells <= 100)) out.push(`${where}: chart 범위`);
+      for (const b of [...(v.blanks ?? []), ...(v.marks ?? [])]) if (b < v.from || b > v.to) out.push(`${where}: chart 칸 ${b}`);
+      if (v.cols !== undefined && (v.cols < 2 || v.cols > 10)) out.push(`${where}: chart cols`);
+      break;
+    }
+    case 'table':
+      if (v.head.length < 2 || v.rows.length < 1 || v.rows.length > 6) out.push(`${where}: table 크기`);
+      for (const row of v.rows) if (row.length !== v.head.length) out.push(`${where}: table 열 수`);
+      break;
+    case 'bag':
+      if (v.items.length < 2 || v.items.length > 30) out.push(`${where}: bag 개수`);
+      break;
+    case 'pattern':
+      if (v.seq.length < 3 || v.seq.length > 10) out.push(`${where}: pattern 길이`);
+      for (const b of v.blanks ?? []) if (!Number.isInteger(b) || b < 0 || b >= v.seq.length) out.push(`${where}: pattern 빈칸`);
+      break;
+    case 'pictograph':
+      if (v.rows.length < 2 || v.rows.length > 6) out.push(`${where}: pictograph 줄`);
+      for (const r of v.rows) if (!Number.isInteger(r.n) || r.n < 0 || r.n > 10) out.push(`${where}: pictograph n`);
+      break;
+    case 'timetable':
+      if (v.periods.length < 2 || v.periods.length > 6) out.push(`${where}: timetable 교시`);
+      break;
+    case 'queue':
+      if (v.items.length < 2 || v.items.length > 9) out.push(`${where}: queue 개수`);
+      if (v.mark !== undefined && (v.mark < 0 || v.mark >= v.items.length)) out.push(`${where}: queue mark`);
+      break;
+    case 'coins':
+      if (v.coins.length < 1 || v.coins.length > 12) out.push(`${where}: coins 개수`);
+      for (const w of v.coins) if (![10, 50, 100, 500].includes(w)) out.push(`${where}: 없는 동전 ${w}`);
+      break;
+    case 'price':
+      if (v.won < 10 || v.won > 500 || v.won % 10 !== 0) out.push(`${where}: price 값 ${v.won}`);
+      break;
     default:
       break;
   }

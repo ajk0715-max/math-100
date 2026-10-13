@@ -62,7 +62,17 @@ export type Visual =
   | { k: 'bars'; items: { label: string; value: number; tone: Tone; emoji?: string }[]; dir: 'h' | 'v'; unitMax?: number; showValues?: boolean; grid?: boolean }
   | { k: 'seesaw'; left: Group; right: Group; tilt?: 'left' | 'right' | 'level' }
   | { k: 'cells'; cols: number; rows: number; fill?: number; tone: Tone; numbered?: boolean; fit?: number }
-  | { k: 'pattern'; seq: string[]; blankAt?: number; kind: 'color' | 'emoji' | 'text' | 'shape' }
+  | { k: 'pattern'; seq: string[]; blanks?: number[]; kind: 'color' | 'emoji' | 'text' | 'shape' }
+  /** 십 모형. tens개의 10개 묶음 막대와 낱개 ones개 */
+  | { k: 'tens'; tens: number; ones: number; tone?: Tone; caption?: boolean }
+  /** 수 배열표(from~to). blanks는 물음표 칸, marks는 색칠 칸 */
+  | { k: 'chart'; from: number; to: number; cols?: number; blanks?: number[]; marks?: number[]; tone?: Tone }
+  /** 간단한 표. 칸 값이 null이면 물음표 칸 */
+  | { k: 'table'; head: string[]; rows: (string | number | null)[][]; tone?: Tone }
+  /** 섞여 있는 그림 더미(분류하기) */
+  | { k: 'bag'; items: string[]; size?: 'sm' | 'md' }
+  /** 줄 서 있는 그림. mark는 표시할 자리(0부터), sides면 양 끝에 왼쪽·오른쪽 글자를 붙인다 */
+  | { k: 'queue'; items: string[]; mark?: number; sides?: boolean }
   | { k: 'pictograph'; rows: { emoji: string; n: number; label: string }[] }
   | { k: 'routine'; items: { emoji: string; label: string; time?: string }[] }
   | { k: 'timetable'; day?: string; periods: { label: string; subject: string; emoji: string }[] }
@@ -179,7 +189,13 @@ export type GameId =
   | 'dateHunt'
   | 'lineup'
   | 'seesaw'
-  | 'shop';
+  | 'shop'
+  | 'bundle'
+  | 'pattern'
+  | 'sort'
+  | 'story'
+  | 'school'
+  | 'adventure';
 
 export interface QuestionRequest {
   skill: string;

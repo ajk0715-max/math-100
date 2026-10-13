@@ -6,7 +6,10 @@ import { digitalText } from '@/core/ko';
 import type { Tone, Visual } from '@/core/types';
 import { Calendar } from './Calendar';
 import { ClockFace } from './ClockFace';
+import { Bag, DataTable, Pattern, Pictograph, Queue, Timetable } from './Data';
 import { Bars, Cells, Routine, Seesaw } from './Measure';
+import { CoinsView, PriceTag } from './Money';
+import { Chart, Tens } from './Numbers';
 import { Objects } from './Objects';
 import { ShapeArt, SolidArt } from './Shapes';
 
@@ -76,10 +79,12 @@ function Months({ hide = [], highlight }: { hide?: number[]; highlight?: number 
 function Digital({ h, m }: { h: number; m: number }) {
   const [hh, mm] = digitalText(h, m).split(':');
   return (
-    <div className="digital" role="img" aria-label="디지털 시계">
-      <span>{hh}</span>
-      <span className="colon">:</span>
-      <span>{mm}</span>
+    <div className="digital-box">
+      <div className="digital" role="img" aria-label="디지털 시계">
+        <span>{hh}</span>
+        <span className="colon">:</span>
+        <span>{mm}</span>
+      </div>
     </div>
   );
 }
@@ -147,6 +152,26 @@ export function Scene({ v }: { v: Visual }): ReactNode {
       return <Cells v={v} />;
     case 'routine':
       return <Routine v={v} />;
+    case 'tens':
+      return <Tens v={v} />;
+    case 'chart':
+      return <Chart v={v} />;
+    case 'table':
+      return <DataTable v={v} />;
+    case 'bag':
+      return <Bag v={v} />;
+    case 'pattern':
+      return <Pattern v={v} />;
+    case 'pictograph':
+      return <Pictograph v={v} />;
+    case 'timetable':
+      return <Timetable v={v} />;
+    case 'queue':
+      return <Queue v={v} />;
+    case 'coins':
+      return <CoinsView v={v} />;
+    case 'price':
+      return <PriceTag v={v} />;
     case 'story':
       return (
         <div className="story">
@@ -156,7 +181,7 @@ export function Scene({ v }: { v: Visual }): ReactNode {
       );
     case 'row':
       return (
-        <div className="viz-row" style={{ gap: v.gap ?? 12, flexWrap: v.wrap ? 'wrap' : 'nowrap' } as CSSProperties}>
+        <div className={`viz-row${v.items.length >= 3 ? ' many' : ''}`} style={{ gap: v.gap ?? 12, flexWrap: v.wrap ? 'wrap' : 'nowrap', ['--n' as string]: v.items.length } as CSSProperties}>
           {v.items.map((it, i) => (
             <Scene key={i} v={it} />
           ))}
