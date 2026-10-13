@@ -188,7 +188,10 @@ export function balloonsCompareGen(cfg: { lo: number; hi: number }) {
         prompt: `${word} 수가 적힌 풍선을 터뜨려 보세요.`,
         say: `${word} 수가 적힌 풍선을 터뜨려 보세요.`,
         answer: { t: 'tapTargets', items: three.map(item), targets: [String(target)], cols: 3, need: 'one' },
-        hint: { say: '수를 차례대로 줄 세워 보면 알 수 있어요.', visual: { k: 'stones', seq: range(Math.min(...three), Math.max(...three)) } },
+        hint: {
+          say: '수를 차례대로 줄 세워 보면 알 수 있어요.',
+          ...(Math.max(...three) - Math.min(...three) + 1 <= 12 ? { visual: { k: 'stones' as const, seq: range(Math.min(...three), Math.max(...three)) } } : {}),
+        },
         explain: `${target}${josa(String(target), '이/가')} ${word} 수예요.`,
       });
     }
@@ -211,7 +214,7 @@ export function balloonsCompareGen(cfg: { lo: number; hi: number }) {
         prompt: text,
         say: text,
         answer: { t: 'tapTargets', items: nums.map(item), targets: targets.map(String), cols: 3, need: 'all' },
-        hint: { say: `${pivot}보다 ${bigger ? '뒤에' : '앞에'} 오는 수를 찾아요.`, visual: { k: 'stones', seq: range(cfg.lo, cfg.hi) } },
+        hint: { say: `${pivot}보다 ${bigger ? '뒤에' : '앞에'} 오는 수를 찾아요.`, visual: { k: 'stones', seq: range(Math.max(cfg.lo, pivot - 3), Math.min(cfg.hi, pivot + 3)) } },
         explain: `${targets.length}개의 풍선을 터뜨려야 해요.`,
       });
     }

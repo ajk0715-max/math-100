@@ -7,7 +7,7 @@ import { buildChoice, mk, numChoice } from './util';
 export const wdOpt = (i: number): Option => ({ key: String(i), text: WEEKDAYS_LONG[i], say: WEEKDAYS_LONG[i] });
 export const monthOpt = (m: number): Option => ({ key: String(m), text: `${m}월`, say: monthKo(m) });
 
-const others = (r: GenCtx['rng'], n: number, exclude: number[], count: number): number[] =>
+export const others = (r: GenCtx['rng'], n: number, exclude: number[], count: number): number[] =>
   distinctInts(r, 0, n - 1, count, exclude);
 
 // ---------------------------------------------------------------------------
@@ -258,26 +258,26 @@ export function firstDayOfMonthInfo(y: number, m: number): { wd: number; days: n
 // 날짜 읽기 도우미
 // ---------------------------------------------------------------------------
 
-const dateOpt = (m: number, d: number): Option => ({ key: `${m}-${d}`, text: dateText(m, d), say: dateKo(m, d) });
-const dateWdOpt = (m: number, d: number, wd: number): Option => ({
+export const dateOpt = (m: number, d: number): Option => ({ key: `${m}-${d}`, text: dateText(m, d), say: dateKo(m, d) });
+export const dateWdOpt = (m: number, d: number, wd: number): Option => ({
   key: `${m}-${d}-${wd}`,
   text: `${dateText(m, d)} ${WEEKDAYS_LONG[wd]}`,
   say: `${dateKo(m, d)} ${WEEKDAYS_LONG[wd]}`,
 });
-const dayOpt = (d: number): Option => ({ key: String(d), text: `${d}일`, say: dayKo(d) });
-const wrapMonth = (m: number): number => ((m - 1 + 12) % 12) + 1;
+export const dayOpt = (d: number): Option => ({ key: String(d), text: `${d}일`, say: dayKo(d) });
+export const wrapMonth = (m: number): number => ((m - 1 + 12) % 12) + 1;
 
 /** 달력에 쓸 해: 오늘보다 이른 달은 내년 달력으로 본다 */
-function yearFor(c: GenCtx, month: number): number {
+export function yearFor(c: GenCtx, month: number): number {
   return month >= c.today.m ? c.today.y : c.today.y + 1;
 }
 
-function calOf(year: number, month: number, marks?: Record<number, CalMark>): Visual {
+export function calOf(year: number, month: number, marks?: Record<number, CalMark>): Visual {
   return { k: 'calendar', year, month, compact: true, ...(marks ? { marks } : {}) };
 }
 
 /** 정답 주변의 날짜 보기(범위 안의 값만) */
-function nearDays(correct: number, dim: number): Option[] {
+export function nearDays(correct: number, dim: number): Option[] {
   return [correct - 1, correct + 1, correct - 7, correct + 7, correct + 2, correct - 2].filter((x) => x >= 1 && x <= dim && x !== correct).map(dayOpt);
 }
 

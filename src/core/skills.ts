@@ -2,7 +2,16 @@ import { WEEKDAYS_LONG } from './dates';
 import { josa } from './ko';
 import { arithGen, balloonsArithGen, mixGen } from './gen/arith';
 import { calGridGen, dateReadGen, dateTodayGen, findDateGen, monthsGen, relDayGen, weekdayNameGen, weekdayOrderGen } from './gen/calendar';
+import { eventGen, eventHuntGen, laterGen, laterHuntGen, monthLenGen, monthLoopTrainGen, weekLenGen, weekLoopTrainGen, yearLenGen } from './gen/calendar2';
 import { clockPartsGen, daypartGen, halfReadGen, halfSeeGen, halfTapGen, hourHandGen, hourReadGen } from './gen/clock';
+import { clockDigitalMatchGen, digitalHalfGen, digitalHourGen, digitalPickGen, digitalSetGen, digitalTapGen, fiveReadGen, fiveSetGen, hour60Gen, hourAfterGen } from './gen/clock2';
+import { countCompareGen, pictoGen, sortGen, tableGen } from './gen/data';
+import { buyGen, coinCompareGen, coinCountGen, coinNameGen, exchangeGen, moneyConfuse, shopPayGen } from './gen/money';
+import { patternGen, patternNumGen, patternRuleGen } from './gen/pattern';
+import { schoolDayGen, timetableGen } from './gen/school';
+import { storyGen } from './gen/story';
+import { ordGen, posGen, wordGen } from './gen/term';
+import { balloonsTenGen, calc20Gen, calc3Gen, calcConfuse, carryTasteGen, tenEqGen, tenPairsGen, tenPicGen } from './gen/ten';
 import { bondGen, compareGen, countGen, orderGen, writeGen } from './gen/number';
 import { compareBigGen, orderBigGen, placeConfuse, readNumGen, skipGen, teenGen, tensGen, tensOnesGen } from './gen/place';
 import {
@@ -23,7 +32,8 @@ import { areaGen, lengthGen, lineupGen, weightGen } from './gen/measure';
 import { routineGen, routineMatchGen, routineTimeGen } from './gen/routine';
 import { shape2dGen, solidGen } from './gen/shape';
 import { range } from './gen/util';
-import type { Area, GameId, GenCtx, Question, Skill } from './types';
+import { pick } from './rng';
+import type { Area, GameId, GenCtx, OptionalFlag, Question, Skill } from './types';
 
 const REGISTRY = new Map<string, Skill>();
 
@@ -189,8 +199,13 @@ def('num.order100', '100까지 수의 순서', 'num', orderBigGen({ lo: 50, hi: 
 def('num.compare100', '100까지 수의 크기 비교', 'num', compareBigGen({ lo: 51, hi: 100 }));
 
 // ---- 보너스 게임 (블록 1~5) ----
-function game(id: string, name: string, area: Area, gameId: GameId, gen: (c: GenCtx) => Question, confuse?: Skill['confuse']): void {
-  def(id, name, area, gen, { game: gameId, noBoss: true, ...(confuse ? { confuse } : {}) });
+function game(id: string, name: string, area: Area, gameId: GameId, gen: (c: GenCtx) => Question, confuse?: Skill['confuse'], optional?: OptionalFlag): void {
+  def(id, name, area, gen, { game: gameId, noBoss: true, ...(confuse ? { confuse } : {}), ...(optional ? { optional } : {}) });
+}
+
+/** 여러 스킬의 문제를 번갈아 내는 종합 스킬. 문제는 고른 스킬의 생성기가 만들고, 기록은 이 종합 스킬로 남는다. */
+function mixOf(ids: string[]): (c: GenCtx) => Question {
+  return (c) => getSkill(pick(c.rng, ids)).gen(c);
 }
 game('game.fish.5', '별 낚시 (5까지)', 'num', 'fish', fishGen({ lo: 1, hi: 5 }));
 game('game.fish.10', '별 낚시 (10까지)', 'num', 'fish', fishGen({ lo: 1, hi: 10 }));
@@ -230,6 +245,126 @@ game('game.balloons.mix9', '풍선 터뜨리기 (더하기·빼기 9까지)', 'n
 game('game.lineup', '막대 줄 세우기', 'measure', 'lineup', lineupGen);
 game('game.seesaw', '시소 놀이', 'measure', 'seesaw', weightGen);
 game('game.routineMatch', '일과와 시계 짝 맞추기', 'life', 'clockMatch', routineMatchGen, halfConfuse);
+
+
+// ---------------------------------------------------------------------------
+// 3단계: 블록 11~20
+// ---------------------------------------------------------------------------
+
+// ---- 블록 11 ----
+def('clk.digital.hour', '디지털 시계 읽기 (정각)', 'clock', digitalHourGen, { confuse: hourConfuse });
+def('clk.digital.half', '디지털 시계 읽기 (30분)', 'clock', digitalHalfGen, { confuse: halfConfuse });
+def('clk.digital.pick', '아날로그·디지털 시계 고르기', 'clock', digitalPickGen, { confuse: halfConfuse });
+def('clk.match.mix', '시계 짝 맞추기 (아날로그·디지털)', 'clock', clockDigitalMatchGen({ hours: range(1, 12), half: 0.5, halfFrom: 2 }), { confuse: halfConfuse });
+def('clk.set.digital', '디지털 시계에 맞춰 바늘 돌리기', 'clock', digitalSetGen({ hours: range(1, 12), half: 0.5, halfFrom: 2 }), { confuse: halfConfuse });
+game('game.fish.20', '별 낚시 (20까지)', 'num', 'fish', fishGen({ lo: 11, hi: 20 }), offByOne('세기'));
+game('game.stones.20', '징검다리 (20까지)', 'num', 'stones', stonesGen({ lo: 1, hi: 20 }), placeConfuse);
+game('game.balloons.cmp20', '풍선 터뜨리기 (20까지 크기 비교)', 'num', 'balloons', balloonsCompareGen({ lo: 11, hi: 20 }));
+game('game.balloons.digital', '풍선 터뜨리기 (디지털 시계)', 'clock', 'balloons', digitalTapGen, halfKindConfuse);
+game('game.clockMatch.digital', '시계 짝 맞추기 (디지털 시계)', 'clock', 'clockMatch', clockDigitalMatchGen({ hours: range(1, 12), half: 0.5, halfFrom: 1 }), halfConfuse);
+game('game.hands.digital', '바늘 돌리기 (디지털 시계 보고)', 'clock', 'hands', digitalSetGen({ hours: range(1, 12), half: 0.5, halfFrom: 1 }), halfConfuse);
+
+// ---- 블록 12 ----
+def('cal.weekLen', '일주일은 며칠', 'cal', weekLenGen);
+def('cal.monthLen', '한 달은 며칠', 'cal', monthLenGen);
+def('cal.yearLen', '일 년은 열두 달', 'cal', yearLenGen);
+game('game.fish.50', '별 낚시 (50까지)', 'num', 'fish', fishGen({ lo: 21, hi: 50 }), placeConfuse);
+game('game.bundle.a', '선물 포장 (50까지)', 'num', 'bundle', tensOnesGen({ lo: 21, hi: 49, l1hi: 39 }), placeConfuse);
+game('game.weekLoop', '요일 기차 (일주일 돌기)', 'cal', 'weekTrain', weekLoopTrainGen, weekdayConfuse);
+game('game.monthLoop', '달 기차 (열두 달 돌기)', 'cal', 'weekTrain', monthLoopTrainGen, monthConfuse);
+
+// ---- 블록 13 ----
+def('cal.event', '가족 기념일 찾기', 'cal', eventGen, { confuse: dateConfuse });
+def('cal.later', '며칠 뒤 세어 보기', 'cal', laterGen, { confuse: dateConfuse });
+game('game.stones.50', '징검다리 (50까지)', 'num', 'stones', stonesGen({ lo: 1, hi: 50 }), placeConfuse);
+game('game.stones.skip', '징검다리 (뛰어 세기)', 'num', 'stones', skipGen({ steps: [2, 5, 10], hi: 50 }), offByOne('뛰어 세기'));
+game('game.balloons.cmp50', '풍선 터뜨리기 (50까지 크기 비교)', 'num', 'balloons', balloonsCompareGen({ lo: 21, hi: 50 }));
+game('game.dateHunt.event', '날짜 보물찾기 (기념일)', 'cal', 'dateHunt', eventHuntGen, dateConfuse);
+game('game.dateHunt.later', '날짜 보물찾기 (며칠 뒤)', 'cal', 'dateHunt', laterHuntGen, dateConfuse);
+
+// ---- 블록 14 ----
+def('money.coinName', '동전 알아보기', 'money', coinNameGen, { confuse: moneyConfuse });
+def('money.coinCompare', '동전 값 비교하기', 'money', coinCompareGen, { confuse: moneyConfuse });
+def('money.exchange', '동전 바꾸기', 'money', exchangeGen, { confuse: moneyConfuse });
+game('game.stones.100', '징검다리 (100까지)', 'num', 'stones', stonesGen({ lo: 1, hi: 100 }), placeConfuse);
+game('game.bundle.b', '선물 포장 (99까지)', 'num', 'bundle', tensOnesGen({ lo: 51, hi: 99, l1hi: 69 }), placeConfuse);
+game('game.balloons.cmp100', '풍선 터뜨리기 (100까지 크기 비교)', 'num', 'balloons', balloonsCompareGen({ lo: 51, hi: 100 }));
+game('game.shop.a', '마을 가게 (100원 안에서)', 'money', 'shop', shopPayGen({ denoms: [10, 50, 100], maxWon: 100 }), moneyConfuse);
+game('game.shop.b', '마을 가게 (동전 세 가지)', 'money', 'shop', shopPayGen({ denoms: [10, 50, 100], maxWon: 300 }), moneyConfuse);
+
+// ---- 블록 15 ----
+def('ten.pic', '10 만들기: 그림', 'num', tenPicGen, { confuse: calcConfuse });
+def('ten.eq', '10 만들기: 식', 'num', tenEqGen, { confuse: calcConfuse });
+def('ten.pairs', '10이 되는 짝 찾기', 'num', tenPairsGen, { confuse: calcConfuse });
+def('money.count', '동전 세기', 'money', coinCountGen, { confuse: moneyConfuse });
+def('money.buy', '500원 안에서 물건 사기', 'money', buyGen, { confuse: moneyConfuse });
+game('game.jars.ten', '구슬 병 (10 만들기)', 'num', 'jars', jarsGen({ lo: 10, hi: 10, mode: 'mix' }), calcConfuse);
+game('game.balloons.ten', '풍선 터뜨리기 (10 만들기)', 'num', 'balloons', balloonsTenGen, calcConfuse);
+game('game.shop.c', '마을 가게 (300원 안에서)', 'money', 'shop', shopPayGen({ denoms: [10, 50, 100], maxWon: 300, fine: true }), moneyConfuse);
+game('game.shop.d', '마을 가게 (500원 안에서)', 'money', 'shop', shopPayGen({ denoms: [10, 50, 100, 500], maxWon: 500, fine: true }), moneyConfuse);
+
+// ---- 블록 16 ----
+def('pat.color', '색 규칙 찾기', 'pattern', patternGen('color'));
+def('pat.emoji', '그림 규칙 찾기', 'pattern', patternGen('emoji'));
+def('pat.shape', '모양 규칙 찾기', 'pattern', patternGen('shape'));
+def('pat.num', '수 규칙 찾기', 'pattern', patternNumGen, { confuse: offByOne('규칙') });
+def('pat.rule', '규칙 말하기와 틀린 것 찾기', 'pattern', patternRuleGen);
+def('clk.five.read', '5분 단위 시계 읽기', 'clock', fiveReadGen, { optional: 'clock5' });
+def('clk.five.set', '5분 단위로 바늘 맞추기', 'clock', fiveSetGen, { optional: 'clock5' });
+game('game.pattern.a', '구슬 꿰기 (색)', 'pattern', 'pattern', patternGen('color'));
+game('game.pattern.b', '구슬 꿰기 (그림)', 'pattern', 'pattern', patternGen('emoji'));
+game('game.pattern.c', '구슬 꿰기 (모양)', 'pattern', 'pattern', patternGen('shape'));
+game('game.pattern.d', '구슬 꿰기 (수)', 'pattern', 'pattern', patternNumGen, offByOne('규칙'));
+game('game.hands.five', '바늘 돌리기 (5분 단위)', 'clock', 'hands', fiveSetGen, undefined, 'clock5');
+
+// ---- 블록 17 ----
+def('data.sort', '분류하기', 'data', sortGen);
+def('data.count', '세어서 비교하기', 'data', countCompareGen);
+def('data.table', '표 읽기', 'data', tableGen);
+def('data.picto', '그림그래프 읽기', 'data', pictoGen);
+def('time.hour60', '1시간은 60분', 'clock', hour60Gen, { optional: 'hour60' });
+def('time.after', '1시간 뒤의 시각', 'clock', hourAfterGen, { optional: 'hour60', confuse: halfConfuse });
+game('game.sort.a', '장난감 정리 (분류)', 'data', 'sort', sortGen);
+game('game.sort.b', '장난감 정리 (세기와 표)', 'data', 'sort', tableGen);
+game('game.sort.c', '장난감 정리 (비교)', 'data', 'sort', countCompareGen);
+
+// ---- 블록 18 ----
+def('story.add', '이야기 식 세우기 (더하기)', 'story', storyGen({ op: '+' }), { confuse: opConfuse });
+def('story.sub', '이야기 식 세우기 (빼기)', 'story', storyGen({ op: '−' }), { confuse: opConfuse });
+def('story.mix', '이야기 식 세우기 (더하기·빼기)', 'story', storyGen({ op: 'mix' }), { confuse: opConfuse });
+def('school.timetable', '학교 시간표 읽기', 'life', timetableGen);
+def('school.day', '학교 가는 날의 하루', 'life', schoolDayGen, { confuse: halfConfuse });
+game('game.story.a', '이야기 극장 (더하기)', 'story', 'story', storyGen({ op: '+' }), opConfuse);
+game('game.story.b', '이야기 극장 (빼기)', 'story', 'story', storyGen({ op: '−' }), opConfuse);
+game('game.school.a', '학교 가는 길 (시간표)', 'life', 'school', timetableGen);
+game('game.school.b', '학교 가는 길 (하루 계획)', 'life', 'school', schoolDayGen, halfConfuse);
+
+// ---- 블록 19 ----
+def('calc3.add', '세 수 더하기', 'num', calc3Gen({ kind: 'add' }), { confuse: calcConfuse });
+def('calc3.sub', '세 수 빼기', 'num', calc3Gen({ kind: 'sub' }), { confuse: calcConfuse });
+def('calc3.mix', '세 수 더하고 빼기', 'num', calc3Gen({ kind: 'mix' }), { confuse: calcConfuse });
+def('calc20.add', '20 이내 덧셈 (받아올림 없음)', 'num', calc20Gen({ op: '+' }), { confuse: calcConfuse });
+def('calc20.sub', '20 이내 뺄셈 (받아내림 없음)', 'num', calc20Gen({ op: '−' }), { confuse: calcConfuse });
+def('carry.taste', '받아올림 맛보기 (8 + 5)', 'num', carryTasteGen, { optional: 'carry', confuse: calcConfuse });
+def('clk.total.hour', '시계 총정리: 정각', 'clock', mixOf(['clk.hour.a', 'clk.hour.b', 'clk.hour.c', 'clk.digital.hour']), { confuse: hourConfuse });
+def('clk.total.half', '시계 총정리: 30분', 'clock', mixOf(['clk.half.a', 'clk.half.b', 'clk.digital.half', 'clk.read.mix']), { confuse: halfConfuse });
+def('clk.total.set', '시계 총정리: 바늘 맞추기와 짝 맞추기', 'clock', mixOf(['clk.set.half', 'clk.set.digital', 'clk.match.mix']), { confuse: halfConfuse });
+game('game.balloons.calc3', '풍선 터뜨리기 (세 수 계산)', 'num', 'balloons', calc3Gen({ kind: 'mix' }), calcConfuse);
+game('game.fish.calc20', '별 낚시 (20 이내 계산)', 'num', 'fish', mixOf(['calc20.add', 'calc20.sub']), calcConfuse);
+game('game.hands.total', '바늘 돌리기 (정각과 30분 총정리)', 'clock', 'hands', handsGen({ hours: range(1, 12), wording: 'time', half: 0.5, halfFrom: 1 }), halfConfuse);
+game('game.clockMatch.total', '시계 짝 맞추기 (총정리)', 'clock', 'clockMatch', mixOf(['game.clockMatch.half.b', 'game.clockMatch.digital']), halfConfuse);
+
+// ---- 블록 20 ----
+def('term.ord', '몇째', 'mix', ordGen);
+def('term.pos', '위치를 나타내는 말', 'mix', posGen);
+def('term.word', '모두·남은·더 많은', 'mix', wordGen);
+def('adv.num', '종합 모험: 수와 계산', 'mix', mixOf(['num.compare100', 'num.tensOnes100', 'ten.eq', 'calc20.add', 'calc20.sub', 'calc3.mix', 'story.mix']));
+def('adv.time', '종합 모험: 시계', 'mix', mixOf(['clk.total.hour', 'clk.total.half', 'clk.total.set', 'school.day', 'life.routineTime']), { confuse: halfConfuse });
+def('adv.cal', '종합 모험: 달력', 'mix', mixOf(['cal.weekdayOrder', 'cal.find', 'cal.event', 'cal.later', 'cal.monthLen', 'cal.yearLen']), { confuse: dateConfuse });
+def('adv.money', '종합 모험: 돈', 'mix', mixOf(['money.coinName', 'money.count', 'money.buy', 'money.exchange']), { confuse: moneyConfuse });
+game('game.adventure.num', '종합 모험 (수와 계산)', 'mix', 'adventure', mixOf(['num.compare100', 'ten.eq', 'calc20.add', 'calc20.sub', 'story.mix']));
+game('game.adventure.time', '종합 모험 (시간과 달력)', 'mix', 'adventure', mixOf(['clk.total.half', 'clk.total.set', 'cal.later', 'cal.event', 'school.timetable']), halfConfuse);
+game('game.adventure.money', '종합 모험 (돈 쓰기)', 'mix', 'adventure', mixOf(['money.count', 'money.buy', 'money.exchange']), moneyConfuse);
 
 export function getSkill(id: string): Skill {
   const s = REGISTRY.get(id);
