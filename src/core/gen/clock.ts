@@ -56,7 +56,7 @@ export function clockPartsGen(c: GenCtx): Question {
       visual: clockVis(h, 0, { mark: n, size: 'lg' }),
       answer: numChoice(r, n, 1, 12, { spread: 3, say: sn }),
       hint: { say: '12는 맨 위, 3은 오른쪽, 6은 맨 아래, 9는 왼쪽에 있어요.' },
-      explain: `빨간색 숫자는 ${sn(n)}이에요.`,
+      explain: `빨간색 숫자는 ${n}${josa(String(n), '이에요/예요')}.`,
     });
   }
   const pos = pick(r, [
@@ -71,7 +71,7 @@ export function clockPartsGen(c: GenCtx): Question {
     visual: clockVis(3, 0, { hands: 'none', size: 'lg' }),
     answer: buildChoice(r, numOpt(pos.a), pos.wrong.map(numOpt), 3),
     hint: { say: '시계 숫자는 1부터 12까지 시계 방향으로 놓여 있어요.', visual: clockVis(3, 0, { hands: 'none', size: 'md' }) },
-    explain: `정답은 ${sn(pos.a)}이에요.`,
+    explain: `정답은 ${pos.a}${josa(String(pos.a), '이에요/예요')}.`,
   });
 }
 
@@ -90,7 +90,7 @@ export function hourHandGen(c: GenCtx): Question {
       visual: clockVis(h, 0, { mark: 'hour', size: 'lg' }),
       answer: numChoice(r, h, 1, 12, { say: sn, spread: L === 1 ? 3 : 1 }),
       hint: { say: '짧은 바늘은 굵고 짧아요. 그 끝이 가리키는 숫자를 봐요.' },
-      explain: `짧은바늘은 ${sn(h)}${josa(sn(h), '을/를')} 가리켜요.`,
+      explain: `짧은바늘은 ${h}${josa(String(h), '을/를')} 가리켜요.`,
     });
   }
   const wrongs = nearHours(h).filter((x) => x !== 12);

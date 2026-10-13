@@ -5,6 +5,13 @@ import '@fontsource/do-hyeon/400.css';
 import './styles/tokens.css';
 import './styles/base.css';
 import './styles/ui.css';
+import './styles/visual.css';
+import './styles/question.css';
+import './styles/screens.css';
+import './styles/lesson.css';
+import './styles/home.css';
+import './styles/games.css';
+import './styles/parent.css';
 import { RegisterSW } from '@/ui/RegisterSW';
 
 export const metadata: Metadata = {

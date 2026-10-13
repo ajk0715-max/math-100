@@ -89,6 +89,14 @@ export function applyAttempt(stat: SkillStat | undefined, day: number, info: Att
   return s;
 }
 
+/** 시험(보스전)에서 틀린 혼동만 기록한다. 단계와 연속 기록은 바꾸지 않는다. */
+export function noteConfusion(stat: SkillStat | undefined, day: number, label: string | null): SkillStat {
+  const s: SkillStat = { ...(stat ?? newSkillStat(day)), confusions: { ...(stat?.confusions ?? {}) } };
+  s.lastDay = day;
+  if (label) s.confusions[label] = (s.confusions[label] ?? 0) + 1;
+  return s;
+}
+
 // ---------------------------------------------------------------------------
 // 복습 일정과 약점
 // ---------------------------------------------------------------------------

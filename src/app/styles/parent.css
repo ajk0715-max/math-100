@@ -1,0 +1,92 @@
+/* 보호자 화면 */
+
+.parent .page {
+  gap: 14px;
+  padding-bottom: 28px;
+}
+.phead h1 {
+  font-size: 1.7rem;
+}
+.parent .sheet h2 {
+  font-size: 1.3rem;
+}
+.parent .sheet {
+  gap: 12px;
+}
+.stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+.stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: 10px 4px;
+  border-radius: var(--r-md);
+  background: var(--paper);
+  border: 2px solid var(--line);
+  text-align: center;
+}
+.stat b {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: 1.55rem;
+  line-height: 1.15;
+}
+.stat span {
+  font-size: 0.85rem;
+  line-height: 1.25;
+  color: var(--ink-soft);
+}
+.seg {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: 1fr;
+  gap: 6px;
+}
+.seg button {
+  min-height: 3rem;
+  border-radius: var(--r-sm);
+  background: var(--paper);
+  border: 2px solid var(--line);
+  font-family: var(--font-display);
+  font-size: 1.1rem;
+}
+.seg button.on {
+  background: var(--sky);
+  border-color: var(--sky-d);
+  color: #fff;
+  box-shadow: var(--lift-sm) var(--sky-d);
+}
+.toast {
+  position: fixed;
+  left: 50%;
+  bottom: calc(var(--safe-b) + 18px);
+  z-index: 60;
+  width: min(92vw, 28rem);
+  padding: 12px 16px;
+  border-radius: var(--r-md);
+  background: var(--ink);
+  color: #fff;
+  font-size: 1.05rem;
+  text-align: center;
+  transform: translateX(-50%);
+  animation: toast 3.6s ease-in-out both;
+}
+@keyframes toast {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, 12px);
+  }
+  8%,
+  88% {
+    opacity: 1;
+    transform: translate(-50%, 0);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(-50%, 8px);
+  }
+}

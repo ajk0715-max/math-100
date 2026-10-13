@@ -1,0 +1,281 @@
+/* 수업 틀: 위 막대, 소개, 사이 카드, 마무리, 보스 */
+
+.center-all {
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+}
+
+/* ---------- 위 막대 ---------- */
+.runner .page {
+  gap: 12px;
+}
+.rbar {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.rbar .row {
+  gap: 10px;
+  min-width: 0;
+}
+.rbar .btn.round {
+  flex: none;
+  width: 2.9rem;
+  min-height: 2.9rem;
+  font-size: 1.2rem;
+}
+.rtitle {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 1.12rem;
+  line-height: 1.2;
+}
+.rbar .chip {
+  flex: none;
+}
+.pip.gap {
+  margin-left: 7px;
+}
+.runner.boss {
+  background: linear-gradient(180deg, rgb(138 107 232 / 0.14), rgb(138 107 232 / 0) 16rem);
+}
+.runner.boss .pip.now {
+  background: var(--grape);
+}
+
+/* ---------- 오늘 배울 것 ---------- */
+.intro {
+  flex: 1;
+  min-height: 0;
+  gap: 16px;
+}
+.introbody {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 18px;
+  min-height: 0;
+}
+.introrow {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  animation: rise 0.3s var(--ease-out) both;
+}
+.introrow .speech {
+  width: 100%;
+  padding: 16px 18px;
+  font-size: clamp(1.3rem, 3dvh, 1.6rem);
+  line-height: 1.6;
+  text-align: center;
+  text-wrap: balance;
+}
+.introrow .speech.below::before {
+  left: calc(50% - 7px);
+}
+.introviz {
+  display: grid;
+  place-items: center;
+  min-height: 9rem;
+  padding: 18px 12px;
+  animation: pop-in 0.3s var(--ease-pop) both;
+}
+
+/* ---------- 사이 카드 ---------- */
+.breakcard {
+  flex: 1;
+  gap: 14px;
+}
+.breakbody {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  text-align: center;
+}
+.breakcard .title {
+  font-size: 2.1rem;
+}
+.breakcard .lead {
+  max-width: 24rem;
+}
+.gamecard {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 12px 24px;
+  background: var(--tangerine-l);
+  border-color: var(--tangerine);
+  box-shadow: var(--lift) var(--tangerine);
+  transform: rotate(-2deg);
+  animation: pop-in 0.4s var(--ease-pop) both;
+}
+.gamecard .emo {
+  font-size: 3.2rem;
+}
+.gamecard h2 {
+  font-size: 1.9rem;
+  color: var(--tangerine-d);
+}
+
+/* ---------- 마무리 ---------- */
+.summary .page {
+  justify-content: center;
+}
+.sumcol {
+  width: 100%;
+  align-items: center;
+  gap: 12px;
+  padding: 4px 0 16px;
+}
+.summary .stamp {
+  width: min(56vw, 12.5rem);
+}
+.starburst {
+  /* --n은 한 줄에 놓을 별 수(최대 5). 별이 6개 이상이면 5개씩 줄을 나눈다. */
+  --n: 5;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 4px;
+  max-width: calc(var(--n) * 4rem);
+  min-height: 3.1rem;
+}
+.bigstar {
+  font-size: clamp(1.5rem, calc(78vw / var(--n)), 2.6rem);
+  line-height: 1;
+  filter: grayscale(1) opacity(0.28);
+  transform: scale(0.78);
+}
+.bigstar.on {
+  filter: none;
+  transform: none;
+  animation: star-pop 0.5s var(--ease-pop) both;
+}
+@keyframes star-pop {
+  0% {
+    transform: scale(0.3) rotate(-30deg);
+  }
+  60% {
+    transform: scale(1.35) rotate(8deg);
+  }
+  100% {
+    transform: scale(1) rotate(0);
+  }
+}
+.plus {
+  color: var(--leaf-d);
+}
+.teaser {
+  align-self: stretch;
+  gap: 12px;
+  text-align: left;
+}
+.teaser .speech {
+  flex: 1;
+  font-size: 1.05rem;
+}
+
+/* ---------- 스티커 ---------- */
+.stickerbig {
+  position: relative;
+  display: grid;
+  justify-items: center;
+  gap: 4px;
+  width: 9.5rem;
+  padding: 14px 10px 10px;
+  background: #fff;
+  border: 4px solid #fff;
+  border-radius: 22px;
+  box-shadow: 0 0 0 2px var(--line), 0 6px 0 var(--line);
+  transform: rotate(-4deg);
+  animation: sticker-in 0.6s 0.9s var(--ease-pop) both;
+}
+.stickerbig .emo {
+  font-size: 4.2rem;
+  line-height: 1;
+}
+.stickername {
+  font-family: var(--font-display);
+  font-size: 1.05rem;
+  color: var(--ink-soft);
+}
+.stickerbig.gold {
+  background: linear-gradient(135deg, #fff8dd, #fff 45%, #ffeaa0);
+  box-shadow: 0 0 0 4px var(--sun), 0 7px 0 var(--sun-d);
+}
+.stickerbig.gold .stickername {
+  color: #8a6500;
+}
+@keyframes sticker-in {
+  from {
+    transform: scale(2.2) rotate(14deg);
+    opacity: 0;
+  }
+}
+
+/* ---------- 보스 ---------- */
+.bossbar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 2px 4px 0;
+}
+.bossfig {
+  flex: none;
+}
+.bossfig.hit {
+  animation: boss-hit 0.5s ease-out;
+}
+@keyframes boss-hit {
+  0% {
+    transform: none;
+  }
+  20% {
+    transform: translateX(-8px) scale(0.9) rotate(-6deg);
+  }
+  45% {
+    transform: translateX(7px) scale(0.94) rotate(5deg);
+  }
+  70% {
+    transform: translateX(-3px) scale(0.97);
+  }
+  100% {
+    transform: none;
+  }
+}
+.hp {
+  position: relative;
+  flex: 1;
+  height: 2.1rem;
+  border: 3px solid var(--ink);
+  border-radius: 999px;
+  background: var(--sheet);
+  overflow: hidden;
+}
+.hp .fill {
+  position: absolute;
+  inset: 0 auto 0 0;
+  background: repeating-linear-gradient(45deg, var(--tomato) 0 10px, #f06a62 10px 20px);
+  transition: width 0.6s var(--ease-out);
+}
+.hp span {
+  position: relative;
+  display: block;
+  text-align: center;
+  line-height: calc(2.1rem - 6px);
+  font-family: var(--font-display);
+  font-size: 1rem;
+  color: var(--ink);
+  text-shadow:
+    0 0 3px #fff,
+    0 0 3px #fff,
+    0 0 5px #fff;
+}

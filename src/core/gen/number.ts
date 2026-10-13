@@ -154,7 +154,7 @@ export function orderGen(cfg: { lo: number; hi: number }) {
           say: '차례대로 세어 보면 알 수 있어요.',
           visual: { k: 'stones', seq: range(Math.max(cfg.lo, ans - 2), Math.min(cfg.hi, ans + 2)) },
         },
-        explain: `정답은 ${sn(ans)}이에요. 차례대로 세면 ${sj(ans, '이/가')} 와요.`,
+        explain: `정답은 ${ans}${josa(String(ans), '이에요/예요')}. 차례대로 세면 ${ans}${josa(String(ans), '이/가')} 와요.`,
       });
     }
 
@@ -178,7 +178,7 @@ export function orderGen(cfg: { lo: number; hi: number }) {
       say: '빈 돌에 알맞은 수를 놓아 보세요.',
       answer: { t: 'gaps', seq, tokens, answers },
       hint: { say: '왼쪽에서부터 차례대로 세어 봐요.', visual: { k: 'stones', seq: full } },
-      explain: `${full.map((v) => sn(v)).join(', ')} 순서예요.`,
+      explain: `${full.join(', ')} 순서예요.`,
     });
   };
 }

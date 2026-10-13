@@ -1,0 +1,234 @@
+/* 보너스 게임: 판마다 배경과 부품 모양만 바꾼다. 문제 풀이 방식은 그대로다. */
+
+.gamestage {
+  --gs: #dcecff;
+  --gs0: rgb(220 236 255 / 0);
+  --gl: #8cc2f7;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  gap: 10px;
+  min-height: 0;
+  margin: 0 -6px;
+  padding: 10px 8px 0;
+  border: 2px dashed var(--gl);
+  border-radius: var(--r-lg);
+  background-color: var(--gs);
+  overflow: hidden;
+}
+.gamebar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 4px;
+  font-family: var(--font-display);
+  font-size: 1.05rem;
+}
+.gamebar strong {
+  font-weight: 400;
+}
+.gamebar .muted {
+  margin-left: auto;
+}
+.gamestage .qfoot {
+  background: linear-gradient(to bottom, var(--gs0), var(--gs) 22px);
+}
+.gamestage .qcard {
+  border-color: var(--gl);
+  box-shadow: var(--lift) var(--gl);
+}
+
+/* 별 낚시: 물결 위의 물고기 */
+.gamestage.t-fish {
+  --gs: #d6ebff;
+  --gs0: rgb(214 235 255 / 0);
+  --gl: #86bcf2;
+  background-image: radial-gradient(circle at 14px 0, transparent 9px, rgb(255 255 255 / 0.65) 10px 12px, transparent 13px);
+  background-size: 28px 14px;
+  background-repeat: repeat-x;
+}
+.opts.t-fish .opt {
+  border-radius: 2rem 1.2rem 1.2rem 2rem;
+  border-color: var(--sky);
+  box-shadow: var(--lift) var(--sky);
+  background: #fbfdff;
+}
+.opts.t-fish .opt::before {
+  content: '🐟';
+  position: absolute;
+  top: -12px;
+  left: -8px;
+  font-size: 1.25rem;
+  line-height: 1;
+}
+
+/* 징검다리: 강물 */
+.gamestage.t-stones {
+  --gs: #d3eef2;
+  --gs0: rgb(211 238 242 / 0);
+  --gl: #7ec6d2;
+  background-image: repeating-linear-gradient(0deg, transparent 0 22px, rgb(255 255 255 / 0.45) 22px 24px);
+}
+.gaps .stone {
+  background: #ece7da;
+  border-color: #b9b19c;
+  box-shadow: 0 4px 0 #b9b19c;
+  color: var(--ink);
+}
+.t-stones .token {
+  border-radius: 40% 60% 55% 45% / 55% 45% 55% 45%;
+  background: #ece7da;
+  border-color: #b9b19c;
+  box-shadow: 0 3px 0 #b9b19c;
+}
+
+/* 풍선: 하늘 */
+.gamestage.t-balloons {
+  --gs: #e2f1ff;
+  --gs0: rgb(226 241 255 / 0);
+  --gl: #9bc9f5;
+  background-image: radial-gradient(ellipse at 18% 12%, rgb(255 255 255 / 0.9) 0 2.2rem, transparent 2.3rem), radial-gradient(ellipse at 84% 26%, rgb(255 255 255 / 0.85) 0 1.7rem, transparent 1.8rem);
+}
+.taps.t-balloons .tap {
+  min-height: 5rem;
+  border-radius: 50% 50% 50% 50% / 58% 58% 42% 42%;
+  border-width: 3px;
+  margin-bottom: 14px;
+}
+.taps.t-balloons .tap::before {
+  content: '';
+  position: absolute;
+  left: 50%;
+  bottom: -14px;
+  width: 2px;
+  height: 14px;
+  background: var(--ink-soft);
+  opacity: 0.55;
+}
+.taps.t-balloons .tap:nth-child(3n + 1) {
+  background: var(--rose-l);
+  border-color: var(--rose);
+  box-shadow: var(--lift) var(--rose);
+}
+.taps.t-balloons .tap:nth-child(3n + 2) {
+  background: var(--sun-l);
+  border-color: var(--sun);
+  box-shadow: var(--lift) var(--sun);
+}
+.taps.t-balloons .tap:nth-child(3n) {
+  background: var(--leaf-l);
+  border-color: var(--leaf);
+  box-shadow: var(--lift) var(--leaf);
+}
+.taps.t-balloons .tap.on {
+  transform: scale(1.06);
+}
+.taps.t-balloons .tap.is-right {
+  background: #fff;
+  border-color: var(--leaf-d);
+  box-shadow: var(--lift) var(--leaf-d);
+}
+
+/* 바늘 돌리기: 시계 방 */
+.gamestage.t-hands {
+  --gs: #fff1d2;
+  --gs0: rgb(255 241 210 / 0);
+  --gl: #f2c261;
+}
+
+/* 구슬 병: 선반 */
+.gamestage.t-jars {
+  --gs: #f6ead2;
+  --gs0: rgb(246 234 210 / 0);
+  --gl: #d9b878;
+}
+.t-jars .jars {
+  padding-bottom: 10px;
+  background: linear-gradient(to bottom, transparent calc(100% - 12px), #cfa766 calc(100% - 12px));
+  border-radius: 0 0 8px 8px;
+}
+
+/* 시계 짝 맞추기: 카드 놀이판 */
+.gamestage.t-clockMatch {
+  --gs: #def3e6;
+  --gs0: rgb(222 243 230 / 0);
+  --gl: #7fcfa0;
+}
+
+/* 하루 카드 */
+.gamestage.t-dayCards {
+  --gs: #ffe9d6;
+  --gs0: rgb(255 233 214 / 0);
+  --gl: #f3a66d;
+}
+
+/* 요일 기차·달 기차 */
+.gamestage.t-weekTrain {
+  --gs: #e0f2ff;
+  --gs0: rgb(224 242 255 / 0);
+  --gl: #86bcf2;
+}
+
+/* 날짜 보물찾기: 보물 지도 */
+.gamestage.t-dateHunt {
+  --gs: #f7ebcc;
+  --gs0: rgb(247 235 204 / 0);
+  --gl: #d3aa54;
+  background-image: radial-gradient(rgb(160 120 40 / 0.1) 1px, transparent 1.5px);
+  background-size: 14px 14px;
+}
+
+/* 마을 가게 */
+.gamestage.t-shop {
+  --gs: #ffe4eb;
+  --gs0: rgb(255 228 235 / 0);
+  --gl: #f08aa5;
+}
+
+/* ---------- 판 아래쪽 풍경(눌러도 반응하지 않는 장식) ---------- */
+.gamestage > * {
+  position: relative;
+  z-index: 1;
+}
+.gamestage::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 48%;
+  z-index: 0;
+  pointer-events: none;
+}
+.gamestage.t-fish::after {
+  background:
+    radial-gradient(circle at 12% 66%, rgb(255 255 255 / 0.75) 0 7px, transparent 8px),
+    radial-gradient(circle at 17% 50%, rgb(255 255 255 / 0.6) 0 4px, transparent 5px),
+    radial-gradient(circle at 15% 36%, rgb(255 255 255 / 0.5) 0 2.5px, transparent 3.5px),
+    radial-gradient(circle at 82% 72%, rgb(255 255 255 / 0.7) 0 6px, transparent 7px),
+    radial-gradient(circle at 87% 54%, rgb(255 255 255 / 0.5) 0 3.5px, transparent 4.5px),
+    linear-gradient(to bottom, rgb(120 180 240 / 0), rgb(120 180 240 / 0.38));
+}
+.gamestage.t-balloons::after {
+  background:
+    radial-gradient(ellipse 60% 70% at 24% 112%, #bfe8c0 0 62%, transparent 63%),
+    radial-gradient(ellipse 70% 60% at 82% 114%, #a9dfb0 0 62%, transparent 63%);
+  height: 22%;
+}
+.gamestage.t-stones::after {
+  background:
+    radial-gradient(ellipse 14% 5% at 20% 70%, rgb(255 255 255 / 0.5) 0 100%, transparent 101%),
+    radial-gradient(ellipse 18% 5% at 74% 48%, rgb(255 255 255 / 0.45) 0 100%, transparent 101%),
+    linear-gradient(to bottom, rgb(126 198 210 / 0), rgb(126 198 210 / 0.35));
+}
+.gamestage.t-weekTrain::after {
+  background:
+    radial-gradient(ellipse 70% 60% at 20% 115%, #c6e9c2 0 62%, transparent 63%),
+    radial-gradient(ellipse 70% 55% at 85% 118%, #b4e0b0 0 62%, transparent 63%);
+  height: 24%;
+}
+.gamestage.t-jars::after {
+  background: linear-gradient(to bottom, transparent 92%, #d9b878 92%);
+  height: 30%;
+}

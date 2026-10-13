@@ -189,7 +189,7 @@ export function balloonsCompareGen(cfg: { lo: number; hi: number }) {
         say: `${word} 수가 적힌 풍선을 터뜨려 보세요.`,
         answer: { t: 'tapTargets', items: three.map(item), targets: [String(target)], cols: 3, need: 'one' },
         hint: { say: '수를 차례대로 줄 세워 보면 알 수 있어요.', visual: { k: 'stones', seq: range(Math.min(...three), Math.max(...three)) } },
-        explain: `${sn(target)}${josa(sn(target), '이/가')} ${word} 수예요.`,
+        explain: `${target}${josa(String(target), '이/가')} ${word} 수예요.`,
       });
     }
 
