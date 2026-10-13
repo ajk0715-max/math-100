@@ -1,0 +1,68 @@
+/* 100일 수학 — 디자인 토큰
+ * 세계관: 입학 준비물(공책·색종이·도장). 바탕은 차가운 공책 종이, 글자는 남색 잉크,
+ * 색은 색종이처럼 납작하게 쓰고 그림자는 번지지 않는 단단한 종이 그림자로 둔다.
+ * 가장 눈에 띄는 것은 "참 잘했어요" 도장 하나뿐이다. */
+:root {
+  color-scheme: light;
+
+  --paper: #f4f6fb;
+  --sheet: #ffffff;
+  --ink: #1d2742;
+  --ink-soft: #5a6684;
+  --line: #d7def0;
+  --grid: #e7ecf8;
+
+  --sky: #4f9cf5;
+  --sky-d: #2d6dc2;
+  --sky-l: #dcecff;
+  --tangerine: #ff8a3d;
+  --tangerine-d: #cf5f17;
+  --tangerine-l: #ffe6d2;
+  --leaf: #34b77a;
+  --leaf-d: #1d8654;
+  --leaf-l: #d3f4e3;
+  --grape: #8a6be8;
+  --grape-d: #5d41ba;
+  --grape-l: #e8e0ff;
+  --rose: #ff6b8e;
+  --rose-d: #cf3d63;
+  --rose-l: #ffdfe7;
+  --sun: #ffc83d;
+  --sun-d: #c99200;
+  --sun-l: #fff0bd;
+  --tomato: #e8453c;
+  --tomato-d: #a9261e;
+  --tomato-l: #ffdbd7;
+
+  --font-body: 'Gowun Dodum', 'Apple SD Gothic Neo', 'Noto Sans KR', 'Malgun Gothic', system-ui, sans-serif;
+  --font-display: 'Do Hyeon', 'Gowun Dodum', 'Apple SD Gothic Neo', 'Noto Sans KR', system-ui, sans-serif;
+
+  --r-sm: 12px;
+  --r-md: 18px;
+  --r-lg: 26px;
+
+  --lift: 0 5px 0;
+  --lift-sm: 0 3px 0;
+
+  --safe-t: env(safe-area-inset-top, 0px);
+  --safe-r: env(safe-area-inset-right, 0px);
+  --safe-b: env(safe-area-inset-bottom, 0px);
+  --safe-l: env(safe-area-inset-left, 0px);
+
+  --ease-out: cubic-bezier(0.2, 0.8, 0.2, 1);
+  --ease-pop: cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+html {
+  font-size: 16px;
+}
+@media (min-width: 700px) {
+  html {
+    font-size: 19px;
+  }
+}
+@media (min-width: 1000px) and (min-height: 800px) {
+  html {
+    font-size: 21px;
+  }
+}
