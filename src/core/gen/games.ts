@@ -15,7 +15,7 @@ export function fishGen(cfg: { lo: number; hi: number }) {
   return (c: GenCtx): Question => {
     const r = c.rng;
     const L = c.level;
-    const easyHi = Math.min(cfg.hi, cfg.hi > 10 ? 12 : 6);
+    const easyHi = Math.max(Math.min(cfg.hi, cfg.hi > 10 ? 12 : 6), Math.min(cfg.hi, cfg.lo + 4));
     const n =
       L === 1
         ? int(r, cfg.lo, easyHi)

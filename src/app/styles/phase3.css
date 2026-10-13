@@ -1,0 +1,393 @@
+/* 3단계(Day 51–100) 그림과 판 꾸미기: 십 모형, 배열표, 표, 규칙, 시간표, 동전·가격표 */
+
+/* ---------- 십 모형 ---------- */
+.tens {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.35rem;
+  width: 100%;
+  margin: 0;
+}
+.tens svg {
+  display: block;
+  height: auto;
+  max-height: 9rem;
+}
+.tens figcaption {
+  font-family: var(--font-display);
+  font-size: 1.05rem;
+  color: var(--ink-soft);
+}
+.tens figcaption b {
+  font-weight: 400;
+  color: var(--sky-d);
+  font-size: 1.25rem;
+}
+
+/* ---------- 수 배열표 ---------- */
+.chartbox {
+  container-type: inline-size;
+  width: min(100%, 24rem);
+  margin: 0 auto;
+}
+.chart {
+  display: grid;
+  grid-template-columns: repeat(var(--cols, 10), 1fr);
+  gap: 2px;
+  padding: 4px;
+  border: 2px solid var(--line);
+  border-radius: 12px;
+  background: var(--sheet);
+}
+.chart .cc {
+  display: grid;
+  place-items: center;
+  aspect-ratio: 1;
+  border-radius: 4px;
+  background: var(--grid);
+  font-style: normal;
+  font-family: var(--font-display);
+  font-size: clamp(0.62rem, calc(100cqw / var(--cols, 10) * 0.46), 1.2rem);
+  line-height: 1;
+  color: var(--ink);
+}
+.chart .cc.q {
+  background: var(--sun-l);
+  box-shadow: inset 0 0 0 2px var(--sun);
+  color: #8a6500;
+}
+.chart .cc.mk {
+  background: var(--tone, var(--sky));
+  color: #fff;
+}
+
+/* ---------- 표 ---------- */
+.dtable {
+  width: min(100%, 21rem);
+  border-collapse: separate;
+  border-spacing: 0;
+  border: 2px solid var(--tone, var(--sky));
+  border-radius: 14px;
+  overflow: hidden;
+  background: var(--sheet);
+  font-family: var(--font-display);
+}
+.dtable th {
+  padding: 0.4rem 0.8rem;
+  background: var(--tone, var(--sky));
+  color: #fff;
+  font-weight: 400;
+  font-size: 1.05rem;
+}
+.dtable td {
+  padding: 0.35rem 0.8rem;
+  border-top: 2px solid var(--line);
+  font-size: 1.3rem;
+  line-height: 1.25;
+}
+.dtable td.lead {
+  text-align: left;
+}
+.dtable td.num {
+  text-align: center;
+  color: var(--tone-d, var(--sky-d));
+}
+.dtable td.q {
+  text-align: center;
+  background: var(--sun-l);
+  box-shadow: inset 0 0 0 3px var(--sun);
+  color: #8a6500;
+}
+
+/* ---------- 섞여 있는 그림 ---------- */
+.bag {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-content: center;
+  gap: 0.1rem 0.35rem;
+  width: min(100%, 22rem);
+  padding: 0.5rem 0.6rem;
+  border: 2px dashed var(--line);
+  border-radius: 18px;
+  background: var(--sheet);
+  font-size: 2.1rem;
+}
+.bag.sm {
+  font-size: 1.6rem;
+  gap: 0.05rem 0.25rem;
+}
+.bag .emo:nth-child(3n) {
+  transform: rotate(9deg);
+}
+.bag .emo:nth-child(3n + 1) {
+  transform: rotate(-7deg);
+}
+
+/* ---------- 규칙 찾기 ---------- */
+.pattern {
+  container-type: inline-size;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 4px;
+  width: 100%;
+  --pc: min(3.4rem, calc((100cqw - (var(--n) - 1) * 4px) / var(--n)));
+}
+.pattern .pc {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: var(--pc);
+  height: var(--pc);
+}
+.pattern .pc.color {
+  border-radius: 50%;
+  background: var(--tone, var(--sky));
+  box-shadow: inset 0 -4px 0 rgb(0 0 0 / 0.16);
+}
+.pattern .pc.emoji {
+  font-size: calc(var(--pc) * 0.78);
+}
+.pattern .pc.text {
+  border-radius: 12px;
+  background: var(--sheet);
+  border: 2px solid var(--line);
+  font-family: var(--font-display);
+  font-size: calc(var(--pc) * 0.5);
+  color: var(--ink);
+}
+.pattern .pc.shape .shape {
+  width: 100%;
+}
+.pattern .pc.blank {
+  border-radius: 12px;
+  border: 3px dashed var(--sun);
+  background: var(--sun-l);
+  font-family: var(--font-display);
+  font-size: calc(var(--pc) * 0.6);
+  color: #8a6500;
+}
+
+/* ---------- 그림그래프 ---------- */
+.picto {
+  display: grid;
+  gap: 0.35rem;
+  width: min(100%, 22rem);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.picto li {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  min-height: 2.6rem;
+  padding: 0.2rem 0.7rem;
+  border: 2px solid var(--line);
+  border-radius: 14px;
+  background: var(--sheet);
+}
+.picto .pl {
+  flex: none;
+  min-width: 3.6rem;
+  font-family: var(--font-display);
+  font-size: 1.05rem;
+}
+.picto .pe {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.1rem;
+  font-size: 1.45rem;
+}
+
+/* ---------- 시간표 ---------- */
+.timetable {
+  display: grid;
+  gap: 0.35rem;
+  width: min(100%, 19rem);
+}
+.timetable .tt-day {
+  justify-self: center;
+  padding: 0.1rem 1.1rem;
+  border-radius: 999px;
+  background: var(--sky);
+  color: #fff;
+  font-family: var(--font-display);
+  font-size: 1.1rem;
+  box-shadow: var(--lift-sm) var(--sky-d);
+}
+.timetable .tt-row {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  min-height: 2.7rem;
+  padding: 0.15rem 0.8rem 0.15rem 0.45rem;
+  border: 2px solid var(--line);
+  border-radius: 14px;
+  background: var(--sheet);
+}
+.timetable .tt-no {
+  flex: none;
+  min-width: 3.9rem;
+  padding: 0.1rem 0.4rem;
+  border-radius: 10px;
+  background: var(--sun-l);
+  box-shadow: inset 0 0 0 2px var(--sun);
+  font-family: var(--font-display);
+  font-size: 1.05rem;
+  text-align: center;
+}
+.timetable .tt-em {
+  flex: none;
+  font-size: 1.5rem;
+}
+.timetable .tt-sub {
+  font-family: var(--font-display);
+  font-size: 1.15rem;
+}
+
+/* ---------- 줄 선 그림(몇째) ---------- */
+.queue {
+  container-type: inline-size;
+  width: 100%;
+  padding-bottom: 1.1rem;
+}
+.queue .qrow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+}
+.queue .qside {
+  flex: none;
+  font-size: 0.78rem;
+  color: var(--ink-soft);
+  writing-mode: horizontal-tb;
+}
+.queue .qitems {
+  display: flex;
+  justify-content: center;
+  gap: 2px;
+}
+.queue .qi {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 1.3em;
+  height: 1.3em;
+  font-size: clamp(1.35rem, calc((100cqw - 5.5rem) / var(--n) * 0.8), 2.7rem);
+  border-radius: 12px;
+}
+.queue .qi.on {
+  background: var(--sun-l);
+  box-shadow: inset 0 0 0 3px var(--sun);
+}
+.queue .qarrow {
+  position: absolute;
+  left: 50%;
+  bottom: -1.05rem;
+  transform: translateX(-50%);
+  font-style: normal;
+  font-size: 0.95rem;
+  line-height: 1;
+  color: var(--tomato);
+}
+
+/* ---------- 동전·가격표 ---------- */
+.coinrow {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.45rem;
+  max-width: min(100%, 22rem);
+}
+.coin.w10 {
+  width: 3.3rem;
+  height: 3.3rem;
+}
+.coin.w50 {
+  --cc: #e4e5ee;
+  --cd: #9496aa;
+  width: 3.6rem;
+  height: 3.6rem;
+}
+.coin.small.w10 {
+  width: 2.5rem;
+  height: 2.5rem;
+}
+.coin.small.w50 {
+  width: 2.7rem;
+  height: 2.7rem;
+}
+.coin.view {
+  cursor: default;
+}
+.coinrow .coin.view {
+  box-shadow: 0 3px 0 var(--cd);
+}
+.price {
+  display: grid;
+  justify-items: center;
+  gap: 0.15rem;
+  min-width: 7.5rem;
+  padding: 0.5rem 0.9rem 0.55rem;
+  border: 2px solid var(--line);
+  border-radius: 18px;
+  background: var(--sheet);
+  box-shadow: var(--lift-sm) var(--line);
+}
+.price .pe {
+  font-size: 2.6rem;
+}
+.price .pn {
+  font-family: var(--font-display);
+  font-size: 1.1rem;
+}
+.price .pw {
+  padding: 0.05rem 0.8rem 0.05rem 0.9rem;
+  border-radius: 6px 18px 18px 6px;
+  background: var(--tomato-l);
+  box-shadow: inset 0 0 0 2px var(--tomato);
+  font-family: var(--font-display);
+  font-size: 1.35rem;
+  color: var(--tomato-d);
+}
+
+/* ---------- 새 보너스 게임 판 ---------- */
+.gamestage.t-bundle {
+  --gs: #f1f7d6;
+  --gs0: rgb(241 247 214 / 0);
+  --gl: #b9d35f;
+}
+.gamestage.t-pattern {
+  --gs: #ece6ff;
+  --gs0: rgb(236 230 255 / 0);
+  --gl: #a893ee;
+  background-image: radial-gradient(circle at 10px 10px, rgb(255 255 255 / 0.7) 0 4px, transparent 5px);
+  background-size: 34px 34px;
+}
+.gamestage.t-sort {
+  --gs: #dcf5ec;
+  --gs0: rgb(220 245 236 / 0);
+  --gl: #6fcdb2;
+}
+.gamestage.t-story {
+  --gs: #ffe3df;
+  --gs0: rgb(255 227 223 / 0);
+  --gl: #e8837a;
+  background-image: repeating-linear-gradient(90deg, rgb(232 131 122 / 0.14) 0 18px, transparent 18px 36px);
+}
+.gamestage.t-school {
+  --gs: #fff5c9;
+  --gs0: rgb(255 245 201 / 0);
+  --gl: #e5c75c;
+}
+.gamestage.t-adventure {
+  --gs: #e2e7ff;
+  --gs0: rgb(226 231 255 / 0);
+  --gl: #8e9be8;
+  background-image: radial-gradient(circle at 20% 18%, rgb(255 255 255 / 0.8) 0 2px, transparent 3px), radial-gradient(circle at 74% 40%, rgb(255 255 255 / 0.7) 0 1.6px, transparent 2.6px);
+  background-size: 120px 120px;
+}

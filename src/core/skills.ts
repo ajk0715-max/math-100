@@ -4,6 +4,7 @@ import { arithGen, balloonsArithGen, mixGen } from './gen/arith';
 import { calGridGen, dateReadGen, dateTodayGen, findDateGen, monthsGen, relDayGen, weekdayNameGen, weekdayOrderGen } from './gen/calendar';
 import { clockPartsGen, daypartGen, halfReadGen, halfSeeGen, halfTapGen, hourHandGen, hourReadGen } from './gen/clock';
 import { bondGen, compareGen, countGen, orderGen, writeGen } from './gen/number';
+import { compareBigGen, orderBigGen, placeConfuse, readNumGen, skipGen, teenGen, tensGen, tensOnesGen } from './gen/place';
 import {
   balloonsCompareGen,
   balloonsShapeGen,
@@ -161,6 +162,31 @@ def('cmp.weight', '무게 비교', 'measure', weightGen);
 def('cmp.area', '넓이 비교', 'measure', areaGen);
 def('life.routine', '하루 일과 순서', 'life', routineGen);
 def('life.routineTime', '일과와 시각', 'life', routineTimeGen, { confuse: halfConfuse });
+
+// ---- 블록 11 ----
+def('num.count20', '20까지 세기', 'num', countGen({ lo: 11, hi: 20, l1hi: 15 }), { confuse: offByOne('세기') });
+def('num.teen', '십 몇 (11~19)', 'num', teenGen, { confuse: placeConfuse });
+def('num.order20', '20까지 수의 순서', 'num', orderBigGen({ lo: 10, hi: 20 }), { confuse: placeConfuse });
+def('num.compare20', '20까지 수의 크기 비교', 'num', compareBigGen({ lo: 11, hi: 20 }));
+
+// ---- 블록 12 ----
+def('num.count50', '50까지 세기', 'num', countGen({ lo: 21, hi: 50, l1hi: 30 }), { confuse: placeConfuse });
+def('num.tens50', '몇십 (10~50)', 'num', tensGen({ minTens: 1, maxTens: 5 }), { confuse: placeConfuse });
+def('num.tensOnes50', '몇십몇: 묶음과 낱개 (50까지)', 'num', tensOnesGen({ lo: 21, hi: 49, l1hi: 39 }), { confuse: placeConfuse });
+def('num.read50', '수 읽기 (50까지)', 'num', readNumGen({ lo: 11, hi: 50 }), { confuse: placeConfuse });
+
+// ---- 블록 13 ----
+def('num.order50', '50까지 수의 순서', 'num', orderBigGen({ lo: 20, hi: 50 }), { confuse: placeConfuse });
+def('num.compare50', '50까지 수의 크기 비교', 'num', compareBigGen({ lo: 21, hi: 50 }));
+def('num.skip.a', '10씩·5씩 뛰어 세기', 'num', skipGen({ steps: [10, 5], hi: 50 }), { confuse: offByOne('뛰어 세기') });
+def('num.skip.b', '2씩·5씩·10씩 뛰어 세기', 'num', skipGen({ steps: [2, 5, 10], hi: 50 }), { confuse: offByOne('뛰어 세기') });
+
+// ---- 블록 14 ----
+def('num.tens100', '몇십 (60~100)', 'num', tensGen({ minTens: 6, maxTens: 10 }), { confuse: placeConfuse });
+def('num.tensOnes100', '몇십몇: 묶음과 낱개 (99까지)', 'num', tensOnesGen({ lo: 51, hi: 99, l1hi: 69 }), { confuse: placeConfuse });
+def('num.read100', '수 읽기 (99까지)', 'num', readNumGen({ lo: 51, hi: 99 }), { confuse: placeConfuse });
+def('num.order100', '100까지 수의 순서', 'num', orderBigGen({ lo: 50, hi: 100 }), { confuse: placeConfuse });
+def('num.compare100', '100까지 수의 크기 비교', 'num', compareBigGen({ lo: 51, hi: 100 }));
 
 // ---- 보너스 게임 (블록 1~5) ----
 function game(id: string, name: string, area: Area, gameId: GameId, gen: (c: GenCtx) => Question, confuse?: Skill['confuse']): void {

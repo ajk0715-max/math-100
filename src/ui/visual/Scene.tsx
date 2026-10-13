@@ -6,7 +6,10 @@ import { digitalText } from '@/core/ko';
 import type { Tone, Visual } from '@/core/types';
 import { Calendar } from './Calendar';
 import { ClockFace } from './ClockFace';
+import { Bag, DataTable, Pattern, Pictograph, Queue, Timetable } from './Data';
 import { Bars, Cells, Routine, Seesaw } from './Measure';
+import { CoinsView, PriceTag } from './Money';
+import { Chart, Tens } from './Numbers';
 import { Objects } from './Objects';
 import { ShapeArt, SolidArt } from './Shapes';
 
@@ -147,6 +150,26 @@ export function Scene({ v }: { v: Visual }): ReactNode {
       return <Cells v={v} />;
     case 'routine':
       return <Routine v={v} />;
+    case 'tens':
+      return <Tens v={v} />;
+    case 'chart':
+      return <Chart v={v} />;
+    case 'table':
+      return <DataTable v={v} />;
+    case 'bag':
+      return <Bag v={v} />;
+    case 'pattern':
+      return <Pattern v={v} />;
+    case 'pictograph':
+      return <Pictograph v={v} />;
+    case 'timetable':
+      return <Timetable v={v} />;
+    case 'queue':
+      return <Queue v={v} />;
+    case 'coins':
+      return <CoinsView v={v} />;
+    case 'price':
+      return <PriceTag v={v} />;
     case 'story':
       return (
         <div className="story">

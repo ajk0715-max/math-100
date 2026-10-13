@@ -14,6 +14,7 @@ import './styles/home.css';
 import './styles/games.css';
 import './styles/rewards.css';
 import './styles/parent.css';
+import './styles/phase3.css';
 import { RegisterSW } from '@/ui/RegisterSW';
 
 export const metadata: Metadata = {

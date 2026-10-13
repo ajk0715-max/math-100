@@ -72,7 +72,7 @@ export function countGen(cfg: CountCfg) {
       n,
       layout: layoutFor(n, L),
       countable: L <= 2,
-      size: n > 20 ? 'sm' : 'md',
+      size: n > 10 ? 'sm' : 'md',
       ...(n > 20 ? { cols: 10 } : {}),
     };
     if ((L === 2 && chance(r, 0.5)) || (big && L >= 2)) {
