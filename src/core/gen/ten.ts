@@ -141,8 +141,8 @@ export function tenEqGen(c: GenCtx): Question {
   const given = form === 'left' ? b : a;
   const ans = form === 'left' ? a : b;
   return mk(c, {
-    prompt: `물음표에 알맞은 수를 눌러 알려 주세요. ${form === 'left' ? `□ + ${b} = 10` : `${a} + □ = 10`}`,
-    say: `물음표에 알맞은 수를 눌러 알려 주세요. ${form === 'left' ? `네모 더하기 ${b}는 십` : `${a} 더하기 네모는 십`}`,
+    prompt: `□에 알맞은 수를 눌러 알려 주세요. ${form === 'left' ? `□ + ${b} = 10` : `${a} + □ = 10`}`,
+    say: `네모에 알맞은 수를 눌러 알려 주세요. ${form === 'left' ? `네모 더하기 ${b}는 십` : `${a} 더하기 네모는 십`}`,
     visual: eqV(parts, 'grape'),
     answer: { t: 'number', correct: ans, maxDigits: 1 },
     hint: { say: `${given}${jo(given, '과/와')} 짝이 되는 수를 찾아요. 더해서 10이 돼야 해요.`, visual: frame },

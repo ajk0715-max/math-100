@@ -157,18 +157,19 @@ function betweenQ(c: GenCtx, d: Day): Question {
 function gapQ(c: GenCtx, d: Day): Question {
   const r = c.rng;
   const n = d.subjects.length;
-  const [i, j] = sample(r, [...Array(n).keys()], 2).sort((x, y) => x - y) as [number, number];
+  const i = int(r, 0, n - 3);
+  const j = int(r, i + 2, n - 1);
   const a = d.subjects[i] as Subject;
   const b = d.subjects[j] as Subject;
-  const gap = j - i;
-  const text = `${b.ko}${josa(b.ko, '은/는')} ${a.ko}보다 몇 교시 뒤에 있을까요?`;
+  const gap = j - i - 1;
+  const text = `${a.ko}${josa(a.ko, '과/와')} ${b.ko} 사이에는 수업이 몇 번 있을까요?`;
   return mk(c, {
     prompt: text,
     say: text,
     visual: tableVis(d),
-    answer: numChoice(r, gap, 1, n - 1, { say: (v) => `${v}교시`, text: (v) => `${v}교시` }),
-    hint: { say: `${a.ko}${josa(a.ko, '은/는')} ${i + 1}교시, ${b.ko}${josa(b.ko, '은/는')} ${j + 1}교시예요. 큰 수에서 작은 수를 빼 봐요.` },
-    explain: `${a.ko}${josa(a.ko, '은/는')} ${i + 1}교시, ${b.ko}${josa(b.ko, '은/는')} ${j + 1}교시이니까 ${gap}교시 뒤예요.`,
+    answer: numChoice(r, gap, 1, 4, { say: (v) => `${v}번`, text: (v) => `${v}번` }),
+    hint: { say: `${a.ko}${josa(a.ko, '은/는')} ${i + 1}교시, ${b.ko}${josa(b.ko, '은/는')} ${j + 1}교시예요. 두 수업은 빼고, 그 사이의 수업만 세어 봐요.` },
+    explain: `${a.ko}${josa(a.ko, '은/는')} ${i + 1}교시, ${b.ko}${josa(b.ko, '은/는')} ${j + 1}교시이니까 그 사이에 수업이 ${gap}번 있어요.`,
   });
 }
 

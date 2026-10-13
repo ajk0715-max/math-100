@@ -127,12 +127,12 @@ export function Home() {
 
   const day = p.day;
   const finished = p.doneDays.length >= TOTAL_DAYS || (p.doneDays.includes(TOTAL_DAYS) && day >= TOTAL_DAYS);
-  const lesson = isReadyDay(day) ? lessonFor(day) : null;
+  const lesson = isReadyDay(day) ? lessonFor(day, p.settings.optional) : null;
   const boss = isBossDay(day);
   const g = lessonGate(p, now, today, usedMs);
   const resume = open && open.day === day;
   // 이미 해 본 게임이 있어야 추가 놀이를 열 수 있다
-  const extraOk = unlockedGames(p.doneDays).length > 0 && extraAvailable(p, now, today, usedMs, used.extra);
+  const extraOk = unlockedGames(p.doneDays, p.settings.optional).length > 0 && extraAvailable(p, now, today, usedMs, used.extra);
   const extraMin = Math.max(1, Math.round(extraBudgetMs(p, usedMs, used.extra) / 60_000));
   const pend = pendingWishes(p).length;
   const stickerCount = BLOCKS.filter((b) => p.stickers[b.n]).length;

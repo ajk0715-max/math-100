@@ -1,8 +1,8 @@
-import { BLOCK_DAYS, blockOf, bossSpec, firstDayOf, idxInBlock, lessonFor, type Lesson } from './curriculum';
+import { BLOCK_COUNT, BLOCK_DAYS, blockOf, bossSpec, firstDayOf, idxInBlock, lessonFor, skillsBefore, type Lesson, type OptionalOn } from './curriculum';
 import type { Profile, ReviewTask, SkillStat } from './model';
 import { newSkillStat } from './model';
 import { generate, type GenEnv } from './question';
-import { hashSeed, makeRng, shuffle } from './rng';
+import { hashSeed, makeRng, sample, shuffle } from './rng';
 import { getSkill } from './skills';
 import type { Level, Question } from './types';
 
@@ -146,10 +146,10 @@ interface Want {
 }
 
 /** 직전 수업(보스 제외)의 스킬들 */
-function previousLesson(day: number): Lesson | null {
+function previousLesson(day: number, opt: OptionalOn): Lesson | null {
   for (let d = day - 1; d >= Math.max(1, day - 3); d--) {
     if (idxInBlock(d) === 5) continue;
-    const l = lessonFor(d);
+    const l = lessonFor(d, opt);
     if (l && l.kind !== 'boss') return l;
   }
   return null;
@@ -174,7 +174,7 @@ export function warmupWants(profile: Profile, day: number): Want[] {
   if (weak && total + 2 <= WARMUP_TOTAL) add({ skill: weak.skill, n: 2, weak: true });
 
   // 3) 직전 수업 스킬로 채우기
-  const prev = previousLesson(day);
+  const prev = previousLesson(day, profile.settings.optional);
   if (prev && total < WARMUP_TOTAL) {
     const pool = [...new Set(prev.explore.map((u) => u.skill))].filter((s) => !getSkill(s).noBoss && !wants.some((x) => x.skill === s));
     if (pool.length) {
@@ -190,7 +190,7 @@ export function warmupWants(profile: Profile, day: number): Want[] {
 }
 
 export function buildLessonPlan(profile: Profile, day: number, run: number): Plan | null {
-  const lesson = lessonFor(day);
+  const lesson = lessonFor(day, profile.settings.optional);
   if (!lesson || lesson.kind === 'boss') return null;
   const slots: Slot[] = [];
   let id = 0;
@@ -210,11 +210,11 @@ export function buildLessonPlan(profile: Profile, day: number, run: number): Pla
   return { day, kind: 'lesson', run, slots };
 }
 
-function skillsOfBlock(block: number): string[] {
+function skillsOfBlock(block: number, opt: OptionalOn): string[] {
   const out: string[] = [];
   const first = firstDayOf(block);
   for (let k = 0; k < BLOCK_DAYS - 1; k++) {
-    const l = lessonFor(first + k);
+    const l = lessonFor(first + k, opt);
     if (!l) continue;
     for (const u of l.explore) if (!getSkill(u.skill).noBoss && !out.includes(u.skill)) out.push(u.skill);
   }
@@ -223,7 +223,8 @@ function skillsOfBlock(block: number): string[] {
 
 /** 보스전 계획. retryFrom이 있으면 틀린 유형만 다시 낸다. */
 export function buildBossPlan(profile: Profile, block: number, run: number, retryFrom?: { skill: string; wrong: number }[]): Plan | null {
-  const spec = bossSpec(block);
+  const opt = profile.settings.optional;
+  const spec = bossSpec(block, opt);
   if (!spec) return null;
   const day = block * BLOCK_DAYS;
   const rng = makeRng(profile.seedSalt, 'boss', block, run);
@@ -234,8 +235,10 @@ export function buildBossPlan(profile: Profile, block: number, run: number, retr
   } else {
     for (const p of spec.current) for (let i = 0; i < p.n; i++) parts.push({ skill: p.skill });
     if (spec.previousCount > 0) {
-      const pool = skillsOfBlock(block - 1);
-      for (let i = 0; i < spec.previousCount && pool.length; i++) parts.push({ skill: pool[i % pool.length] as string, prev: true });
+      // 마지막 보스(Day 100)는 100일 전체에서, 나머지는 바로 앞 블록에서 고른다
+      const pool = block === BLOCK_COUNT ? skillsBefore(block, opt) : skillsOfBlock(block - 1, opt);
+      const picks = pool.length >= spec.previousCount ? sample(rng, pool, spec.previousCount) : pool;
+      for (let i = 0; i < spec.previousCount && picks.length; i++) parts.push({ skill: picks[i % picks.length] as string, prev: true });
     }
   }
   const ordered = shuffle(rng, parts);
@@ -323,7 +326,7 @@ export function lessonSummary(slots: Slot[]): LessonSummary {
 
 /** 수업을 마친 뒤의 프로필: 날 진행, 별, 복습 예약과 소화한 복습 정리 */
 export function finishLesson(profile: Profile, plan: Plan, today: string, firstOfDay: boolean): Profile {
-  const lesson = lessonFor(plan.day);
+  const lesson = lessonFor(plan.day, profile.settings.optional);
   const reviewedSkills = new Set(plan.slots.filter((s) => s.done && s.review).map((s) => s.skill));
   const reviews = profile.reviews.filter((r) => !(r.due <= plan.day && reviewedSkills.has(r.skill)));
   const added = lesson ? scheduleReviews(plan.day, lesson.newSkills) : [];

@@ -65,7 +65,8 @@ export function BossRunner({ block, skip = false }: { block: number; skip?: bool
   const store = useStore();
   const { env, today, go, update, latest } = store;
   const day = block * 5;
-  const lesson = useMemo(() => lessonFor(day), [day]);
+  const optional = store.profile?.settings.optional;
+  const lesson = useMemo(() => lessonFor(day, optional), [day, optional]);
   const def = BLOCKS[block - 1];
 
   const [rec, setRec] = useState<SessionRec | null>(null);

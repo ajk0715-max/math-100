@@ -431,8 +431,9 @@ export function hourAfterGen(c: GenCtx): Question {
     say: later ? '1시간이 지날 때마다 짧은바늘이 숫자 하나씩 앞으로 가요.' : '1시간 전이면 짧은바늘이 숫자 하나씩 뒤로 가요.',
     visual: { k: 'row', items: [clockVis(h, m, { size: 'sm' }), { k: 'big', text: '➜', tone: 'ink' }, clockVis(th, m, { size: 'sm' })], gap: 10 } as Visual,
   };
-  const explain = `${tt}에서 ${hours} ${word}는 ${ans}${josa(ans, '이에요/예요')}.`;
-  const text = `${tt}에서 ${hours} ${word}는 몇 시${m === 30 ? ' 몇 분' : ''}일까요?`;
+  const topic = `${hours} ${word}${josa(word, '은/는')}`;
+  const explain = `${tt}에서 ${topic} ${ans}${josa(ans, '이에요/예요')}.`;
+  const text = `${tt}에서 ${topic} 몇 시${m === 30 ? ' 몇 분' : ''}일까요?`;
 
   if (L <= 2) {
     const wrongs = m === 0 ? [wrap12(th + 1), wrap12(th - 1), wrap12(th + 2)].map(hourOption) : [timeOption(wrap12(th + 1), 30), timeOption(wrap12(th - 1), 30), timeOption(th, 0)];

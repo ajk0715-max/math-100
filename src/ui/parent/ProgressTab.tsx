@@ -119,7 +119,7 @@ export function ProgressTab({ notify }: { notify: Notify }) {
             >
               {days.map((d) => (
                 <option key={d} value={d}>
-                  {d === p.day ? '▶ ' : ''}Day {d} · {lessonFor(d)?.title ?? ''}
+                  {d === p.day ? '▶ ' : ''}Day {d} · {lessonFor(d, p.settings.optional)?.title ?? ''}
                 </option>
               ))}
             </select>

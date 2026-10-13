@@ -371,7 +371,8 @@ describe('진도 지도', () => {
     expect(blockState(p, 2)).toBe('skipped');
     expect(blockState(p, 3)).toBe('current');
     expect(blockState(p, 4)).toBe('upcoming');
-    expect(blockState(p, 11)).toBe('soon');
+    expect(blockState(p, 11)).toBe('upcoming');
+    expect(blockState(p, 20)).toBe('upcoming');
     expect(blockState({ ...p, day: 22 }, 3)).toBe('moved');
   });
 

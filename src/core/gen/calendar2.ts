@@ -1,5 +1,5 @@
 import { WEEKDAYS_LONG, WEEKDAYS_SHORT, daysInMonth, weekdayOf } from '../dates';
-import { dateKo, dateText, dayKo, monthKo, withJosa } from '../ko';
+import { dateKo, dateText, dayKo, josa, monthKo, withJosa } from '../ko';
 import { chance, int, pick, sample, shuffle } from '../rng';
 import type { CalMark, FamilyEvent, GenCtx, MatchPair, Option, OrderItem, Question, Visual } from '../types';
 import { calOf, dayOpt, monthOpt, nearDays, others, wdOpt, yearFor } from './calendar';
@@ -54,13 +54,14 @@ export function weekLenGen(c: GenCtx): Question {
     const wd = int(r, 0, 6);
     const later = chance(r, 0.5);
     const word = later ? '뒤' : '전';
+    const topic = `일주일 ${word}${josa(word, '은/는')}`;
     return mk(c, {
-      prompt: `오늘이 ${WEEKDAYS_LONG[wd]}이에요. 일주일 ${word}는 무슨 요일일까요?`,
-      say: `오늘이 ${WEEKDAYS_LONG[wd]}이에요. 일주일 ${word}는 무슨 요일일까요?`,
+      prompt: `오늘이 ${WEEKDAYS_LONG[wd]}이에요. ${topic} 무슨 요일일까요?`,
+      say: `오늘이 ${WEEKDAYS_LONG[wd]}이에요. ${topic} 무슨 요일일까요?`,
       visual: weeksRow(wd),
       answer: buildChoice(r, wdOpt(wd), others(r, 7, [wd], 5).map(wdOpt), 3),
       hint: { say: '일주일은 7일이라서 7일이 지나면 같은 요일이 돌아와요.', visual: weeksRow(wd) },
-      explain: `일주일 ${word}는 같은 ${WEEKDAYS_LONG[wd]}이에요.`,
+      explain: `${topic} 같은 ${WEEKDAYS_LONG[wd]}이에요.`,
     });
   }
 
@@ -78,12 +79,14 @@ export function weekLenGen(c: GenCtx): Question {
   const later = chance(r, 0.6);
   const d = later ? int(r, 1, dim - 7) : int(r, 8, dim);
   const target = later ? d + 7 : d - 7;
+  const word = later ? '뒤' : '전';
+  const topic = `일주일 ${word}${josa(word, '은/는')}`;
   return mk(c, {
-    prompt: `${m}월 ${d}일에서 일주일 ${later ? '뒤' : '전'}는 며칠일까요? 달력에서 눌러 보세요.`,
-    say: `${monthKo(m)} ${dayKo(d)}에서 일주일 ${later ? '뒤' : '전'}는 며칠일까요? 달력에서 눌러 보세요.`,
+    prompt: `${m}월 ${d}일에서 ${topic} 며칠일까요? 달력에서 눌러 보세요.`,
+    say: `${monthKo(m)} ${dayKo(d)}에서 ${topic} 며칠일까요? 달력에서 눌러 보세요.`,
     answer: { t: 'calTap', year: y, month: m, targets: [target], need: 'one', marks: { [d]: 'start' } },
     hint: { say: `일주일은 7일이에요. 같은 요일끼리는 세로줄이 같아서 바로 ${later ? '아래' : '위'} 칸이에요.`, visual: { k: 'calendar', year: y, month: m, highlightWeekday: weekdayOf(y, m, d), compact: true } },
-    explain: `일주일 ${later ? '뒤' : '전'}는 ${target}일이에요.`,
+    explain: `${topic} ${target}일이에요.`,
   });
 }
 

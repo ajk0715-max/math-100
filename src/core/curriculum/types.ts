@@ -29,8 +29,8 @@ export interface GameSpec {
   levels: Level[];
 }
 
-export interface DayDef {
-  day: number;
+/** 하루 수업의 내용. 선택 과제가 꺼져 있을 때 대신 하는 수업도 같은 모양이다. */
+export interface DayBody {
   kind: 'math' | 'life';
   title: string;
   buddy: Buddy;
@@ -40,6 +40,18 @@ export interface DayDef {
   /** 부모용 한 줄 생활 활동 */
   tip: string;
 }
+
+export interface DayDef extends DayBody {
+  day: number;
+  /**
+   * 이 날이 선택 과제(flag)에 달려 있을 때, 꺼져 있으면 본 수업 대신 하는 수업.
+   * 새 개념 없이 앞에서 배운 것을 놀이로 복습해서, 선택 과제를 꺼도 100일 구조와 보상이 그대로 이어진다.
+   */
+  off?: { flag: OptionalFlag; body: DayBody };
+}
+
+/** 선택 과제 켜짐 상태. 프로필 설정의 optional과 같은 모양 */
+export type OptionalOn = Readonly<Record<OptionalFlag, boolean>>;
 
 export interface BlockDef {
   n: number;
@@ -71,6 +83,8 @@ export interface Lesson {
   tip: string;
   /** 처음 나오는 스킬들(복습 일정이 시작되는 스킬) */
   newSkills: string[];
+  /** 선택 과제에 달린 날이면 어떤 과제인지와 켜져 있는지 */
+  optional?: { flag: OptionalFlag; on: boolean };
 }
 
 export interface BossPart {

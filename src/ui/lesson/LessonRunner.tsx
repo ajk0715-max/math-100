@@ -43,7 +43,8 @@ const rid = (): string => (typeof crypto !== 'undefined' && 'randomUUID' in cryp
 export function LessonRunner({ day }: { day: number }) {
   const store = useStore();
   const { env, today, go, update, latest } = store;
-  const lesson = useMemo(() => lessonFor(day), [day]);
+  const optional = store.profile?.settings.optional;
+  const lesson = useMemo(() => lessonFor(day, optional), [day, optional]);
 
   const [rec, setRec] = useState<SessionRec | null>(null);
   const [phase, setPhase] = useState<Phase>('boot');
@@ -251,7 +252,7 @@ export function LessonRunner({ day }: { day: number }) {
   const slot = slots[rec.cursor];
 
   if (phase === 'summary' && result) {
-    const nextLesson = lessonFor(Math.min(100, day + 1));
+    const nextLesson = lessonFor(Math.min(100, day + 1), profile.settings.optional);
     return (
       <Summary
         heading={`Day ${day} 끝!`}

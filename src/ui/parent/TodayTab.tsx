@@ -16,7 +16,7 @@ export function TodayTab({ notify }: { notify: Notify }) {
   const rep = useMemo(() => (rec ? dayReport(today, rec.sessions, rec.attempts) : null), [rec, today]);
   const mid = useMemo(() => (rec && p.doneDays.includes(50) ? rangeReport(rec.attempts, rec.sessions, 1, 50) : null), [rec, p.doneDays]);
 
-  const next = lessonFor(p.day);
+  const next = lessonFor(p.day, p.settings.optional);
   const weak = weakRows(p);
   const low = lowestSkills(p, 5).filter((r) => r.rate < 0.8);
   const rate = rep ? percent(rep.firstRight, rep.solved) : null;
@@ -75,7 +75,11 @@ export function TodayTab({ notify }: { notify: Notify }) {
       {next && (
         <section className="sheet col">
           <h2>다음 수업 · Day {p.day}</h2>
-          <p className="lessonline">{next.title}</p>
+          <p className="lessonline">
+            {next.title}
+            {next.optional && <span className={`chip ${next.optional.on ? 'leaf' : ''}`}> {next.optional.on ? '선택 과제 켜짐' : '선택 과제 꺼짐 · 복습 놀이'}</span>}
+          </p>
+          {next.optional && <p className="fine">설정 탭의 ‘선택 과제’에서 바꿀 수 있어요.</p>}
           <div className="tipbox">
             <span className="emo" aria-hidden="true">
               💡
