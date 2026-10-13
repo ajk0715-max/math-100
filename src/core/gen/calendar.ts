@@ -1,5 +1,5 @@
 import { WEEKDAYS_LONG, WEEKDAYS_SHORT, addDays, daysInMonth, firstWeekday, makeParts, weekdayOf } from '../dates';
-import { dateKo, dateText, dayKo, josa, monthKo } from '../ko';
+import { dateKo, dateText, dayKo, josa, monthKo, withJosa } from '../ko';
 import { chance, distinctInts, int, pick, shuffle } from '../rng';
 import type { CalMark, FamilyEvent, GenCtx, Option, Question, Visual } from '../types';
 import { buildChoice, mk, numChoice } from './util';
@@ -42,8 +42,8 @@ export function weekdayNameGen(c: GenCtx): Question {
         cols: 4,
         need: 'one',
       },
-      hint: { say: `${WEEKDAYS_LONG[i]}은 ${WEEKDAYS_SHORT[i]}이라고 써요.` },
-      explain: `${WEEKDAYS_LONG[i]}은 ${WEEKDAYS_SHORT[i]}이에요.`,
+      hint: { say: `${WEEKDAYS_LONG[i]}은 ${WEEKDAYS_SHORT[i]}${josa(WEEKDAYS_SHORT[i] as string, '이라고/라고')} 써요.` },
+      explain: `${WEEKDAYS_LONG[i]}은 ${WEEKDAYS_SHORT[i]}${josa(WEEKDAYS_SHORT[i] as string, '이에요/예요')}.`,
     });
   }
   const pair = pick(r, [
@@ -202,17 +202,18 @@ export function calGridGen(c: GenCtx): Question {
   if (L === 1) {
     const kind = pick(r, ['sunday', 'row'] as const);
     if (kind === 'sunday') {
+      // 정답이 늘 첫째 보기가 되지 않도록 두 보기의 자리를 섞는다
+      const flip = chance(r, 0.5);
+      const left: Option = { key: 'L', text: '왼쪽 끝' };
+      const right: Option = { key: 'R', text: '오른쪽 끝' };
       return mk(c, {
         prompt: '달력에서 일요일은 어느 쪽 끝에 있을까요?',
         say: '달력에서 일요일은 어느 쪽 끝에 있을까요?',
         visual: cal(),
         answer: {
           t: 'choice',
-          options: [
-            { key: 'L', text: '왼쪽 끝' },
-            { key: 'R', text: '오른쪽 끝' },
-          ],
-          correct: 0,
+          options: flip ? [right, left] : [left, right],
+          correct: flip ? 1 : 0,
           cols: 2,
         },
         hint: { say: '달력 맨 위의 요일 이름을 읽어 봐요. 일요일이 가장 먼저 나와요.' },
@@ -447,23 +448,23 @@ export function relDayGen(c: GenCtx): Question {
   const hint = { say: tomorrow ? '내일은 오늘 바로 다음 날이에요. 달력에서 오른쪽 칸이에요.' : '어제는 오늘 바로 전 날이에요. 달력에서 왼쪽 칸이에요.', visual: vis };
   if (L === 1) {
     return mk(c, {
-      prompt: `빨간 칸이 오늘이에요. ${word}는 며칠일까요?`,
-      say: `빨간 칸이 오늘이에요. ${word}는 며칠일까요?`,
+      prompt: `빨간 칸이 오늘이에요. ${word}${josa(word, '은/는')} 며칠일까요?`,
+      say: `빨간 칸이 오늘이에요. ${word}${josa(word, '은/는')} 며칠일까요?`,
       visual: vis,
       answer: buildChoice(r, dayOpt(target), [d - 1, d + 1, d - 2, d + 2].filter((x) => x !== target && x >= 1 && x <= dim).map(dayOpt), 3),
       hint,
-      explain: `${word}는 ${target}일이에요.`,
+      explain: `${word}${josa(word, '은/는')} ${target}일이에요.`,
     });
   }
   const twd = (wd + (tomorrow ? 1 : 6)) % 7;
   const wrongs: Option[] = [dateWdOpt(month, d, twd), dateWdOpt(month, target, wd), dateWdOpt(month, d + (tomorrow ? -1 : 1), (twd + 1) % 7), dateWdOpt(month, target, (twd + 1) % 7)];
   return mk(c, {
-    prompt: `오늘은 ${d}일 ${WEEKDAYS_LONG[wd]}이에요. ${word}는 며칠 무슨 요일일까요?`,
-    say: `오늘은 ${dayKo(d)} ${WEEKDAYS_LONG[wd]}이에요. ${word}는 며칠 무슨 요일일까요?`,
+    prompt: `오늘은 ${d}일 ${WEEKDAYS_LONG[wd]}이에요. ${word}${josa(word, '은/는')} 며칠 무슨 요일일까요?`,
+    say: `오늘은 ${dayKo(d)} ${WEEKDAYS_LONG[wd]}이에요. ${word}${josa(word, '은/는')} 며칠 무슨 요일일까요?`,
     visual: vis,
     answer: buildChoice(r, { key: `${month}-${target}-${twd}`, text: `${target}일 ${WEEKDAYS_LONG[twd]}`, say: `${dayKo(target)} ${WEEKDAYS_LONG[twd]}` }, wrongs.map((o) => ({ ...o, text: o.text?.replace(/^\d+월 /, ''), say: o.say?.replace(/^\S+월 /, '') })), 3),
     hint,
-    explain: `${word}는 ${target}일 ${WEEKDAYS_LONG[twd]}이에요.`,
+    explain: `${word}${josa(word, '은/는')} ${target}일 ${WEEKDAYS_LONG[twd]}이에요.`,
   });
 }
 
@@ -486,8 +487,8 @@ export function findDateGen(c: GenCtx): Question {
     const wd = weekdayOf(year, ev.month, ev.day);
     if (L === 2 || chance(r, 0.4)) {
       return mk(c, {
-        prompt: `${ev.label}은 ${dateText(ev.month, ev.day)}이에요. 달력에서 ${ev.day}일을 찾아 눌러 보세요.`,
-        say: `${ev.label}은 ${dateKo(ev.month, ev.day)}이에요. 달력에서 ${dayKo(ev.day)}을 찾아 눌러 보세요.`,
+        prompt: `${withJosa(ev.label, '은/는')} ${dateText(ev.month, ev.day)}이에요. 달력에서 ${ev.day}일을 찾아 눌러 보세요.`,
+        say: `${withJosa(ev.label, '은/는')} ${dateKo(ev.month, ev.day)}이에요. 달력에서 ${dayKo(ev.day)}을 찾아 눌러 보세요.`,
         answer: { t: 'calTap', year, month: ev.month, targets: [ev.day], need: 'one' },
         hint: { say: '숫자가 작은 날은 위쪽, 큰 날은 아래쪽에 있어요.' },
         explain: `${ev.day}일은 여기에 있어요.`,
@@ -495,12 +496,12 @@ export function findDateGen(c: GenCtx): Question {
     }
     const wrongs = others(r, 7, [wd], 5).map(wdOpt);
     return mk(c, {
-      prompt: `${ev.label}은 ${dateText(ev.month, ev.day)}이에요. 그날은 무슨 요일일까요?`,
-      say: `${ev.label}은 ${dateKo(ev.month, ev.day)}이에요. 그날은 무슨 요일일까요?`,
+      prompt: `${withJosa(ev.label, '은/는')} ${dateText(ev.month, ev.day)}이에요. 그날은 무슨 요일일까요?`,
+      say: `${withJosa(ev.label, '은/는')} ${dateKo(ev.month, ev.day)}이에요. 그날은 무슨 요일일까요?`,
       visual: calOf(year, ev.month, { [ev.day]: 'event' }),
       answer: buildChoice(r, wdOpt(wd), wrongs, 3),
       hint: { say: '표시된 날에서 위로 올라가 요일 이름을 읽어요.' },
-      explain: `${ev.label}은 ${WEEKDAYS_LONG[wd]}이에요.`,
+      explain: `${withJosa(ev.label, '은/는')} ${withJosa(WEEKDAYS_LONG[wd] as string, '이에요/예요')}.`,
     });
   }
 

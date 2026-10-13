@@ -182,7 +182,7 @@ function betweenQ(c: GenCtx): Question {
     say: text,
     visual: queueVis(pals),
     answer: buildChoice(r, palOpt(mid), wrongs, 3),
-    hint: { say: `${a.ko}와 ${b.ko}를 먼저 찾고, 두 친구 가운데에 있는 친구를 찾아요.` },
+    hint: { say: `${a.ko}${josa(a.ko, '과/와')} ${b.ko}${josa(b.ko, '을/를')} 먼저 찾고, 두 친구 가운데에 있는 친구를 찾아요.` },
     explain: `${a.ko}${josa(a.ko, '과/와')} ${b.ko} 사이에는 ${mid.ko}${josa(mid.ko, '이/가')} 있어요.`,
   });
 }

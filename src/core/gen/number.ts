@@ -231,7 +231,7 @@ export function compareGen(cfg: { lo: number; hi: number }) {
           say: '수를 차례대로 세면 먼저 나오는 수가 더 작아요.',
           visual: { k: 'stones', seq: range(Math.min(a, b), Math.max(a, b)) },
         },
-        explain: `${sj(ans, '이/가')} ${word} 수예요.`,
+        explain: `${dj(ans, '이/가')} ${word} 수예요.`,
       });
     }
 
@@ -246,7 +246,7 @@ export function compareGen(cfg: { lo: number; hi: number }) {
       visual: { k: 'row', items: three.map((n) => ({ k: 'big', text: String(n), tone: 'grape' }) as Visual), gap: 16 },
       answer: buildChoice(r, opt(ans), three.filter((n) => n !== ans).map(opt), 3, 3),
       hint: { say: '수를 차례대로 줄 세워 보면 알 수 있어요.', visual: { k: 'stones', seq: range(Math.min(...three), Math.max(...three)) } },
-      explain: `${sj(ans, '이/가')} ${word} 수예요.`,
+      explain: `${dj(ans, '이/가')} ${word} 수예요.`,
     });
   };
 }
@@ -293,7 +293,7 @@ export function bondGen(cfg: BondCfg) {
           visual: { k: 'bond', total: null, a, b },
           answer: numChoice(r, total, 1, cfg.hi + 1, { say: (n) => sn(n) }),
           hint: { say: '두 수를 합쳐서 세어 봐요.', visual: groupsVis },
-          explain: `${sj(a, '과/와')} ${sj(b, '을/를')} 모으면 ${sj(total, '이/가')} 돼요.`,
+          explain: `${dj(a, '과/와')} ${dj(b, '을/를')} 모으면 ${dj(total, '이/가')} 돼요.`,
         });
       }
       const pairText = (x: number, y: number) => `${x}${josa(String(x), '과/와')} ${y}`;
@@ -312,7 +312,7 @@ export function bondGen(cfg: BondCfg) {
         visual: { k: 'big', text: String(total), tone: 'sky' },
         answer: buildChoice(r, toPair(a, b), wrongs, 3),
         hint: { say: '두 수를 합쳐서 몇인지 확인해 봐요.' },
-        explain: `${pairSay(a, b)}${josa(sn(b), '을/를')} 모으면 ${sj(total, '이/가')} 돼요.`,
+        explain: `${dj(a, '과/와')} ${dj(b, '을/를')} 모으면 ${dj(total, '이/가')} 돼요.`,
       });
     }
 
@@ -335,7 +335,7 @@ export function bondGen(cfg: BondCfg) {
         visual: { k: 'bond', total, a, b: null },
         answer: numChoice(r, b, 1, cfg.hi, { say: (n) => sn(n) }),
         hint: { say: '전체에서 한쪽을 빼면 다른 쪽이에요.', visual: unknownVis },
-        explain: `${sj(total, '은/는')} ${sj(a, '과/와')} ${sj(b, '으로/로')} 가를 수 있어요.`,
+        explain: `${dj(total, '은/는')} ${dj(a, '과/와')} ${dj(b, '으로/로')} 가를 수 있어요.`,
       });
     }
     return mk(c, {

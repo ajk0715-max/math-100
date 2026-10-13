@@ -98,6 +98,10 @@ export interface Profile {
   diagnostic: DiagnosticRecord | null;
   seedSalt: number;
   settings: ProfileSettings;
+  /** 100일 마지막 보스를 처음 통과한 날짜(YYYY-MM-DD). 수료증에 적는다. */
+  completedOn?: string;
+  /** 수료증에 쓸 이름. 비어 있으면 별명을 쓴다. */
+  certName?: string;
 }
 
 export const DEFAULT_SETTINGS: ProfileSettings = {

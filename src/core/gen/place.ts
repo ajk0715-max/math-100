@@ -146,7 +146,7 @@ export function teenGen(c: GenCtx): Question {
       visual: { k: 'big', text: String(n), tone: 'grape' },
       answer: buildChoice(r, opts[0] as Option, opts.slice(1), 3),
       hint: { say: '십 다음에 낱개 수를 붙여 읽어요.', visual: tensVis(n) },
-      explain: `${n}${josa(String(n), '은/는')} ${sinoNum(n)}라고 읽고, ${nat(n)}라고도 읽어요.`,
+      explain: `${n}${josa(String(n), '은/는')} ${sinoNum(n)}${josa(sinoNum(n), '이라고/라고')} 읽고, ${nat(n)}${josa(nat(n), '이라고/라고')}도 읽어요.`,
     });
   }
   const wrongs = nearWrong(n, 11, 19, false);
@@ -378,7 +378,7 @@ export function readNumGen(cfg: { lo: number; hi: number }) {
       say: '숫자와 읽는 말을 짝지어 보세요.',
       answer: { t: 'match', pairs },
       hint: { say: '십의 앞 말이 묶음 수예요. 하나씩 읽어 보며 맞춰 봐요.' },
-      explain: pairs.map((p) => `${p.a.text}${josa(p.a.text as string, '은/는')} ${p.b.text}`).join(', ') + '이에요.',
+      explain: `${pairs.map((p) => `${p.a.text}${josa(p.a.text as string, '은/는')} ${p.b.text}`).join(', ')}${josa(String(pairs[pairs.length - 1]?.b.text ?? ''), '이에요/예요')}.`,
     });
   };
 }

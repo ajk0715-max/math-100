@@ -327,7 +327,7 @@ export function handsGen(cfg: { hours: number[]; wording: 'pointer' | 'time'; ha
         : `긴바늘은 12에 두고, 짧은바늘을 ${h}에 맞춰 봐요.`,
       visual: hintVisual,
     };
-    const explain = `${timeKo(h, m)}는 이렇게 보여요.`;
+    const explain = `${timeKo(h, m)}${josa(timeKo(h, m), '은/는')} 이렇게 보여요.`;
     if (L === 1) {
       const text = `${withJosa(tt, '이/가')} 되도록 시계를 맞춰 보세요.`;
       return mk(c, {

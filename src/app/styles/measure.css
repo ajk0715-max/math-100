@@ -52,19 +52,34 @@
 }
 .bars.h .val {
   left: calc(var(--val) / var(--max) * 100% + 0.5rem);
+  white-space: nowrap;
+}
+/* 값 글자를 보여 줄 때는 가장 긴 막대 끝 뒤에 글자가 놓일 자리를 둔다 */
+.bars.h.vals .bar {
+  padding-right: 2.9rem;
 }
 
 /* 세로: 바닥선을 맞춘다 */
 .bars.v {
+  /* 막대 사이·양쪽 여백·막대 너비·이름표 여유. 좁은 칸(도움말 말풍선)에서는 아래 @supports에서 줄어든다 */
+  --gap: 1rem;
+  --pad: 0.6rem;
+  --bw: 3.2rem;
+  --lx: 1rem;
   display: flex;
   align-items: flex-end;
   justify-content: center;
-  gap: 1rem;
+  gap: var(--gap);
   height: 10.5rem;
-  padding: 0 0.6rem;
-  margin-bottom: 1.9rem;
+  padding: 0 var(--pad);
+  /* 좁아서 이름표가 두 줄이 되면 그만큼 아래 자리를 더 둔다 */
+  margin-bottom: calc(1.9rem + 1rem - var(--lx));
   border-bottom: 4px solid var(--ink);
   width: min(100%, 20rem);
+}
+/* 값 글자는 막대 위에 놓이므로, 가장 높은 막대 위에도 글자 자리를 둔다 */
+.bars.v.vals {
+  margin-top: 1.7rem;
 }
 .bars.v .bar {
   position: relative;
@@ -73,7 +88,7 @@
   justify-content: flex-end;
   align-items: center;
   height: 100%;
-  width: 3.2rem;
+  width: var(--bw);
 }
 .bars.v .track {
   position: relative;
@@ -91,9 +106,11 @@
 .bars.v .blabel {
   position: absolute;
   top: calc(100% + 0.35rem);
-  width: 5.2rem;
+  /* 이웃한 이름표와 겹치지 않게 막대 한 칸(막대+사이)의 너비를 넘지 않는다 */
+  width: calc(var(--bw) + var(--gap) + var(--lx));
   text-align: center;
   font-size: 0.85rem;
+  line-height: 1.15;
 }
 .bars.v .val {
   bottom: calc(var(--val) / var(--max) * 100% + 0.2rem);
@@ -128,7 +145,8 @@
   flex: none;
 }
 .viz-row .seesaw {
-  --sw: min(10.6rem, 42vw);
+  /* 두 개를 나란히 놓아도 게임 카드(화면 너비 − 76px) 안에 들어가게 */
+  --sw: min(10.6rem, 38vw);
 }
 .seesaw .plank {
   position: absolute;
@@ -165,10 +183,13 @@
   font-size: calc(var(--sw) * 0.16);
 }
 .seesaw.m3 .pan {
-  font-size: calc(var(--sw) * 0.135);
+  font-size: calc(var(--sw) * 0.124);
 }
 .seesaw.m4 .pan {
+  /* 네 개는 두 줄로 쌓아 접시(판 너비의 46%) 안에 둔다 */
   font-size: calc(var(--sw) * 0.115);
+  flex-wrap: wrap;
+  max-width: 100%;
 }
 .seesaw .unk {
   display: grid;
@@ -275,4 +296,22 @@
   color: #8a6500;
   box-shadow: inset 0 0 0 3px var(--sun);
   border-radius: 16px;
+}
+
+@supports (width: 1cqw) {
+  /* 세로 막대: 칸이 좁으면 사이·여백·막대를 함께 줄여 칸 안에 들인다(칸 너비 320px 이상이면 그대로) */
+  .bars.v {
+    --gap: min(1rem, 5cqw);
+    --pad: min(0.6rem, 3cqw);
+    --bw: min(3.2rem, calc((min(100cqw, 20rem) - 2 * var(--pad) - (var(--n) - 1) * var(--gap)) / var(--n)));
+    --lx: clamp(0px, calc(100cqw - 18.75rem), 1rem);
+  }
+  /* 시소는 그림 상자 너비에 맞춘다(도움말 말풍선·게임 카드처럼 좁은 곳) */
+  /* 판이 기울면 높은 쪽 접시가 바깥으로 조금 밀리므로 양쪽에 여유를 둔다 */
+  .seesaw {
+    --sw: min(15rem, 88cqw);
+  }
+  .viz-row .seesaw {
+    --sw: min(10.6rem, calc(50cqw - 13px));
+  }
 }

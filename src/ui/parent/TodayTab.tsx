@@ -1,22 +1,62 @@
 'use client';
 
 import { useMemo } from 'react';
-import { lessonFor } from '@/core/curriculum';
+import { hasCertificate } from '@/core/certificate';
+import { TOTAL_DAYS, lessonFor } from '@/core/curriculum';
 import { josa } from '@/core/ko';
 import type { Profile } from '@/core/model';
-import { dayReport, lowestSkills, rangeReport, weakRows } from '@/core/report';
+import { dayReport, finalReport, lowestSkills, rangeReport, weakRows, type RangeReport } from '@/core/report';
 import { useStore } from '../store';
 import { RateBar, percent, useRecords, type Notify } from './shared';
 
-/** 오늘: 리포트, 헷갈리는 것, 다음 수업 안내, 중간 점검 */
+/** 구간 리포트 카드: 마친 수업·시간·푼 문제·정답률과 영역별 막대 */
+function RangeCard({ title, rep, className, children }: { title: string; rep: RangeReport; className: string; children: React.ReactNode }) {
+  const rate = percent(rep.firstRight, rep.solved);
+  return (
+    <section className={`sheet col ${className}`}>
+      <h2>{title}</h2>
+      <div className="stats two">
+        <div className="stat">
+          <b>{rep.days}일</b>
+          <span>마친 수업</span>
+        </div>
+        <div className="stat">
+          <b>{rep.minutes}분</b>
+          <span>공부한 시간</span>
+        </div>
+        <div className="stat">
+          <b>{rep.solved}개</b>
+          <span>푼 문제</span>
+        </div>
+        <div className="stat">
+          <b>{rate === null ? '-' : `${rate}%`}</b>
+          <span>처음에 바로 맞힘</span>
+        </div>
+      </div>
+      <ul className="ratebars">
+        {rep.areas.map((a) => (
+          <RateBar key={a.area} label={a.label} right={a.firstRight} total={a.solved} />
+        ))}
+      </ul>
+      {children}
+    </section>
+  );
+}
+
+/** 오늘: 리포트, 헷갈리는 것, 다음 수업 안내, 중간 점검, 100일 종합 리포트 */
 export function TodayTab({ notify }: { notify: Notify }) {
-  const { profile, today, update } = useStore();
+  const { profile, today, update, go } = useStore();
   const p = profile as Profile;
   const rec = useRecords(p.id, `${p.lastLessonDate}|${p.day}|${p.doneDays.length}|${p.stars}`);
   const rep = useMemo(() => (rec ? dayReport(today, rec.sessions, rec.attempts) : null), [rec, today]);
-  const mid = useMemo(() => (rec && p.doneDays.includes(50) ? rangeReport(rec.attempts, rec.sessions, 1, 50) : null), [rec, p.doneDays]);
+  const done100 = hasCertificate(p);
+  const fin = useMemo(() => (rec && done100 ? finalReport(rec.attempts, rec.sessions) : null), [rec, done100]);
+  // 100일을 마치면 종합 리포트가 중간 점검을 대신한다
+  const mid = useMemo(() => (rec && p.doneDays.includes(50) && !done100 ? rangeReport(rec.attempts, rec.sessions, 1, 50) : null), [rec, p.doneDays, done100]);
 
-  const next = lessonFor(p.day, p.settings.optional);
+  // 마지막 보스까지 마쳤고 진도도 끝에 있으면 ‘다음 수업’은 없다
+  const finishedAll = done100 && p.day >= TOTAL_DAYS;
+  const next = finishedAll ? null : lessonFor(p.day, p.settings.optional);
   const weak = weakRows(p);
   const low = lowestSkills(p, 5).filter((r) => r.rate < 0.8);
   const rate = rep ? percent(rep.firstRight, rep.solved) : null;
@@ -68,7 +108,7 @@ export function TodayTab({ notify }: { notify: Notify }) {
           </>
         )}
         <p className="muted">
-          별 {p.stars}개 · 마친 날 {p.doneDays.length}일 · 다음은 Day {p.day}
+          별 {p.stars}개 · 마친 날 {p.doneDays.length}일 · {finishedAll ? '100일 과정을 모두 마쳤어요' : `다음은 Day ${p.day}`}
         </p>
       </section>
 
@@ -139,32 +179,21 @@ export function TodayTab({ notify }: { notify: Notify }) {
         )}
       </section>
 
-      {mid && (
-        <section className="sheet col midcheck">
-          <h2>중간 점검 · Day 1~50</h2>
-          <div className="stats two">
-            <div className="stat">
-              <b>{mid.days}일</b>
-              <span>마친 수업</span>
-            </div>
-            <div className="stat">
-              <b>{mid.minutes}분</b>
-              <span>공부한 시간</span>
-            </div>
-            <div className="stat">
-              <b>{mid.solved}개</b>
-              <span>푼 문제</span>
-            </div>
-            <div className="stat">
-              <b>{midRate === null ? '-' : `${midRate}%`}</b>
-              <span>처음에 바로 맞힘</span>
-            </div>
-          </div>
-          <ul className="ratebars">
-            {mid.areas.map((a) => (
-              <RateBar key={a.area} label={a.label} right={a.firstRight} total={a.solved} />
+      {fin && (
+        <RangeCard title="100일 종합 리포트 · Day 1~100" rep={fin.all} className="midcheck finalcheck">
+          <ul className="advice">
+            {fin.advice.map((t) => (
+              <li key={t}>{t}</li>
             ))}
           </ul>
+          <button type="button" className="btn sun" onClick={() => go({ name: 'certificate' })}>
+            수료증 열기
+          </button>
+        </RangeCard>
+      )}
+
+      {mid && (
+        <RangeCard title="중간 점검 · Day 1~50" rep={mid} className="midcheck">
           <p>
             {midRate === null
               ? '기록이 아직 적어요.'
@@ -181,7 +210,7 @@ export function TodayTab({ notify }: { notify: Notify }) {
               </>
             )}
           </p>
-        </section>
+        </RangeCard>
       )}
     </>
   );

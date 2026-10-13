@@ -13,7 +13,7 @@ export function Bars({ v }: { v: BarsV }) {
   const max = v.unitMax ?? Math.max(1, ...v.items.map((i) => i.value));
   const solo = v.items.length === 1;
   return (
-    <div className={`bars ${v.dir}${solo ? ' solo' : ''}${v.grid ? ' grid' : ''}`} style={cssVars({ '--max': max })} role="img" aria-label="길이를 견주는 막대">
+    <div className={`bars ${v.dir}${solo ? ' solo' : ''}${v.grid ? ' grid' : ''}${v.showValues ? ' vals' : ''}`} style={cssVars({ '--max': max, '--n': v.items.length })} role="img" aria-label="길이를 견주는 막대">
       {v.items.map((it, i) => (
         <div key={i} className={`bar tone-${it.tone}`} style={cssVars({ '--val': it.value })}>
           {!solo && <span className="blabel">{it.label}</span>}

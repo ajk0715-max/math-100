@@ -18,13 +18,15 @@ export interface SummaryProps {
   teaser?: string | null;
   button: string;
   onDone: () => void;
+  /** 두 번째 단추(예: 100일을 마쳤을 때 ‘홈으로’) */
+  secondary?: { label: string; onClick: () => void };
   /** 보스 통과 때처럼 아래에 더 보여 줄 것 */
   children?: React.ReactNode;
   stampLines?: [string, string?];
 }
 
 /** 수업을 마치면 빨간 도장이 쾅 찍힌다 */
-export function Summary({ heading, buddy, stars, starsTotal, correct, total, teaser, button, onDone, children, stampLines }: SummaryProps) {
+export function Summary({ heading, buddy, stars, starsTotal, correct, total, teaser, button, onDone, secondary, children, stampLines }: SummaryProps) {
   const [shown, setShown] = useState(0);
 
   useEffect(() => {
@@ -74,6 +76,11 @@ export function Summary({ heading, buddy, stars, starsTotal, correct, total, tea
           <button type="button" className="btn go block" onClick={onDone}>
             {button}
           </button>
+          {secondary && (
+            <button type="button" className="btn ghost block" onClick={secondary.onClick}>
+              {secondary.label}
+            </button>
+          )}
         </section>
       </div>
     </main>

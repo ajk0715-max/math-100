@@ -182,7 +182,6 @@ const ACTS: { part: Part; emoji: string; label: string }[] = [
   { part: 'noon', emoji: '☀️', label: '해가 하늘 높이 떠 있어요' },
   { part: 'evening', emoji: '🍲', label: '저녁밥을 먹어요' },
   { part: 'evening', emoji: '🌇', label: '해가 져요' },
-  { part: 'evening', emoji: '🏠', label: '집에 돌아와요' },
   { part: 'night', emoji: '🌙', label: '달과 별이 떠요' },
   { part: 'night', emoji: '😴', label: '잠을 자요' },
 ];

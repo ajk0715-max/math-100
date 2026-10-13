@@ -261,12 +261,29 @@
   animation: pop-in 0.22s var(--ease-pop) both;
   animation-delay: calc(var(--i, 0) * 40ms);
 }
+/* 글자만 있는 칸: 가장 긴 낱말(--tl)이 칸 너비(열 수 --cols)를 넘지 않게 글자 크기를 줄인다 */
+.opts.fit,
+.taps .grid.fit {
+  container-type: inline-size;
+}
+.opts.fit .opt > .t:not(.sm) {
+  font-size: min(1em, calc(((100cqw - (var(--cols) - 1) * 10px) / var(--cols) - 28px) / (var(--tl) * 0.92)));
+}
+.taps .grid.fit .tap > .t:not(.sm) {
+  font-size: min(1em, calc(((100cqw - (var(--cols) - 1) * 10px) / var(--cols) - 24px) / (var(--tl) * 0.92)));
+}
 .opts.vis .opt {
   min-height: clamp(7rem, 17dvh, 11rem);
   padding: 10px;
 }
 .opt .t {
   display: block;
+}
+/* 디지털 시계 칸: 안쪽 여백을 조금 덜어 숫자를 더 크게 보여 준다 */
+.opt .digital-box,
+.tap .digital-box {
+  width: calc(100% + 12px);
+  margin-inline: -6px;
 }
 .opt .t.sm {
   font-size: 1.05rem;

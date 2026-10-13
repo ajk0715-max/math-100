@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { sfx } from '@/audio/sfx';
+import { hasCertificate } from '@/core/certificate';
 import { BLOCKS, BLOCK_COUNT, TOTAL_DAYS, firstDayOf, isBossDay, isReadyDay, lessonFor } from '@/core/curriculum';
 import { unlockedGames } from '@/core/extra';
 import { extraAvailable, extraBudgetMs, gate as lessonGate, type Gate } from '@/core/limits';
@@ -127,6 +128,8 @@ export function Home() {
 
   const day = p.day;
   const finished = p.doneDays.length >= TOTAL_DAYS || (p.doneDays.includes(TOTAL_DAYS) && day >= TOTAL_DAYS);
+  // 마지막 보스를 통과했으면 진도를 되돌려 놓았어도 수료증은 계속 열려 있다
+  const earned = hasCertificate(p);
   const lesson = isReadyDay(day) ? lessonFor(day, p.settings.optional) : null;
   const boss = isBossDay(day);
   const g = lessonGate(p, now, today, usedMs);
@@ -139,13 +142,14 @@ export function Home() {
 
   const start = () => {
     sfx.tap();
-    if (boss) go({ name: 'boss', block: Math.ceil(day / 5) });
+    if (finished) go({ name: 'certificate' });
+    else if (boss) go({ name: 'boss', block: Math.ceil(day / 5) });
     else go({ name: 'lesson', day });
   };
 
   const hero = (() => {
     if (finished) {
-      return { buddy: 'bear' as const, mood: 'cheer' as const, kicker: '100일 완주!', title: '모든 수업을 마쳤어요', sub: '정말 멋져요. 도장판을 다시 봐요.', action: null };
+      return { buddy: 'bear' as const, mood: 'cheer' as const, kicker: '100일 완주!', title: '모든 수업을 마쳤어요', sub: '정말 멋져요. 수료증이 기다리고 있어요.', action: earned ? '수료증 보기' : null };
     }
     if (!lesson) {
       return { buddy: 'mole' as const, mood: 'happy' as const, kicker: `Day ${day}`, title: '다음 수업을 준비하고 있어요', sub: '조금만 기다려 주세요.', action: null };
@@ -197,7 +201,7 @@ export function Home() {
               {hero.action}
             </button>
           )}
-          {!hero.action && extraOk && (
+          {(!hero.action || finished) && extraOk && (
             <button
               type="button"
               className="btn sun block herobtn extrabtn"
@@ -211,7 +215,7 @@ export function Home() {
           )}
         </section>
 
-        <nav className="tiles" aria-label="바로가기">
+        <nav className={`tiles${earned ? ' four' : ''}`} aria-label="바로가기">
           <button
             type="button"
             className="tile sticker-t"
@@ -250,6 +254,20 @@ export function Home() {
             <b>소원 상자</b>
             <small>{pend > 0 ? `기다리는 중 ${pend}` : '별로 부탁해요'}</small>
           </button>
+          {earned && (
+            <button
+              type="button"
+              className="tile cert-t"
+              onClick={() => {
+                sfx.tap();
+                go({ name: 'certificate' });
+              }}
+            >
+              <span className="emo">🎓</span>
+              <b>수료증</b>
+              <small>100일 완성</small>
+            </button>
+          )}
         </nav>
 
         <Board profile={p} curRef={curRef} />

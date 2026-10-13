@@ -79,10 +79,12 @@ function Months({ hide = [], highlight }: { hide?: number[]; highlight?: number 
 function Digital({ h, m }: { h: number; m: number }) {
   const [hh, mm] = digitalText(h, m).split(':');
   return (
-    <div className="digital" role="img" aria-label="디지털 시계">
-      <span>{hh}</span>
-      <span className="colon">:</span>
-      <span>{mm}</span>
+    <div className="digital-box">
+      <div className="digital" role="img" aria-label="디지털 시계">
+        <span>{hh}</span>
+        <span className="colon">:</span>
+        <span>{mm}</span>
+      </div>
     </div>
   );
 }
@@ -179,7 +181,7 @@ export function Scene({ v }: { v: Visual }): ReactNode {
       );
     case 'row':
       return (
-        <div className="viz-row" style={{ gap: v.gap ?? 12, flexWrap: v.wrap ? 'wrap' : 'nowrap' } as CSSProperties}>
+        <div className={`viz-row${v.items.length >= 3 ? ' many' : ''}`} style={{ gap: v.gap ?? 12, flexWrap: v.wrap ? 'wrap' : 'nowrap', ['--n' as string]: v.items.length } as CSSProperties}>
           {v.items.map((it, i) => (
             <Scene key={i} v={it} />
           ))}

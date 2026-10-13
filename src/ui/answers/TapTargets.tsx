@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { say } from '@/audio/speech';
 import { sfx } from '@/audio/sfx';
 import type { TapItem } from '@/core/types';
-import { TextFace } from './TextFace';
+import { TextFace, fitLen } from './TextFace';
 import type { AnswerProps } from './types';
 
 export function TapTargets({ spec, status, attempt, onSubmit, theme }: AnswerProps<'tapTargets'>) {
@@ -32,10 +32,15 @@ export function TapTargets({ spec, status, attempt, onSubmit, theme }: AnswerPro
 
   const cols = spec.cols ?? 3;
   const hasVisual = spec.items.some((i) => i.visual);
+  const tl = fitLen(spec.items);
+  const fit = tl >= 3;
 
   return (
     <div className={`taps${theme ? ` t-${theme}` : ''}`}>
-      <div className={`grid${hasVisual ? ' vis' : ''}`} style={{ gridTemplateColumns: `repeat(${cols}, minmax(0, 1fr))` }}>
+      <div
+        className={`grid${hasVisual ? ' vis' : ''}${fit ? ' fit' : ''}`}
+        style={{ gridTemplateColumns: `repeat(${cols}, minmax(0, 1fr))`, ...(fit ? { ['--cols' as string]: cols, ['--tl' as string]: tl } : {}) }}
+      >
         {spec.items.map((it, i) => {
           const isTarget = spec.targets.includes(it.key);
           const chosen = sel.includes(it.key);

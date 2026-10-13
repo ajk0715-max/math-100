@@ -158,7 +158,7 @@ function pickEquationQ(c: GenCtx, s: Story): Question {
     visual: s.visual,
     answer: buildChoice(r, correct, wrongs, 3, 1),
     hint: { say: `${WHY_PLUS} 이 이야기는 ${s.op === '+' ? '합치는' : '덜어 내거나 비교하는'} 이야기예요.` },
-    explain: `${s.op === '+' ? '합치는' : '덜어 내거나 비교하는'} 이야기니까 ${correct.text}이에요.`,
+    explain: `${s.op === '+' ? '합치는' : '덜어 내거나 비교하는'} 이야기니까 ${correct.text}${josa(correct.text ?? '', '이에요/예요')}.`,
   });
 }
 

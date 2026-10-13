@@ -95,9 +95,9 @@ export function digitalHalfGen(c: GenCtx): Question {
     return mk(c, {
       prompt: text,
       say: text,
-      answer: buildChoice(r, digitalPick(h, 30), nearTimes(h, 30).map(([hh, mm]) => digitalPick(hh, mm)), 3, 3),
-      hint: { ...hint, visual: clockVis(h, 30, { size: 'md', mark: 'hour' }) },
-      explain: `${tt}${josa(tt, '은/는')} 앞의 숫자가 ${h}이고 뒤의 숫자가 30인 시계예요.`,
+      answer: buildChoice(r, digitalPick(h, m), nearTimes(h, m).map(([hh, mm]) => digitalPick(hh, mm)), 3, 3),
+      hint,
+      explain: `${tt}${josa(tt, '은/는')} 앞의 숫자가 ${h}이고 뒤의 숫자가 ${m === 0 ? '00' : '30'}인 시계예요.`,
     });
   }
   const n = int(r, 4, 6);
@@ -256,7 +256,7 @@ export function fiveReadGen(c: GenCtx): Question {
   const k = m / 5;
   const tt = timeText(h, m);
   const hint = { say: `짧은바늘이 지나간 숫자가 시예요. ${FIVE_RULE}`, visual: clockVis(h, m, { size: 'md', mark: 'hour' }) };
-  const explain = `짧은바늘이 ${h}를 지났고 긴바늘이 ${k}에 있어서 ${tt}${josa(tt, '이에요/예요')}.`;
+  const explain = `짧은바늘이 ${h}${josa(String(h), '을/를')} 지났고 긴바늘이 ${k}에 있어서 ${tt}${josa(tt, '이에요/예요')}.`;
   const wrongs = [
     timeOption(h, m + (m <= 50 ? 5 : -5)),
     timeOption(h, m - 5),
@@ -282,7 +282,7 @@ export function fiveReadGen(c: GenCtx): Question {
       answer: buildChoice(
         r,
         clockPick(h, m),
-        [clockPick(h, m + (m <= 50 ? 5 : -5)), clockPick(h, k), clockPick(wrap12(h + 1), m), clockPick(h, m - 5)].filter((o) => o.key !== `${h}:${m}`),
+        [clockPick(h, m + (m <= 50 ? 5 : -5)), clockPick(k, h * 5 % 60), clockPick(wrap12(h + 1), m), clockPick(h, m - 5)].filter((o) => o.key !== `${h}:${m}`),
         3,
         3,
       ),
@@ -298,7 +298,7 @@ export function fiveReadGen(c: GenCtx): Question {
     answer: buildChoice(
       r,
       clockPick(h, m),
-      [clockPick(h, m + (m <= 50 ? 5 : -5)), clockPick(h, k), clockPick(wrap12(h + 1), m), clockPick(h, m - 5)].filter((o) => o.key !== `${h}:${m}`),
+      [clockPick(h, m + (m <= 50 ? 5 : -5)), clockPick(k, h * 5 % 60), clockPick(wrap12(h + 1), m), clockPick(h, m - 5)].filter((o) => o.key !== `${h}:${m}`),
       3,
       3,
     ),
@@ -315,7 +315,7 @@ export function fiveSetGen(c: GenCtx): Question {
   const m = L === 1 ? pick(r, [15, 45, 30, 0]) : pick(r, [5, 10, 15, 20, 25, 35, 40, 45, 50, 55]);
   const tt = timeText(h, m);
   const hint = {
-    say: `짧은바늘은 ${h}를 지나 있게, 긴바늘은 ${m / 5}에 놓아요. ${FIVE_RULE}`,
+    say: `짧은바늘은 ${h}${josa(String(h), '을/를')} 지나 있게, 긴바늘은 ${m / 5}에 놓아요. ${FIVE_RULE}`,
     visual: clockVis(h, m, { size: 'md' }),
   };
   if (L === 3) {
@@ -368,7 +368,7 @@ export function hour60Gen(c: GenCtx): Question {
     return mk(c, {
       prompt: '긴바늘이 한 바퀴 돌면 시간이 얼마나 지났을까요?',
       say: '긴바늘이 한 바퀴 돌면 시간이 얼마나 지났을까요?',
-      visual: { k: 'row', items: [clockVis(h, 0, { size: 'sm' }), { k: 'big', text: '➜', tone: 'ink' }, clockVis(h, 0, { size: 'sm' })], gap: 12 },
+      visual: { k: 'row', items: [clockVis(h, 0, { size: 'sm' }), { k: 'big', text: '➜', tone: 'ink' }, clockVis(wrap12(h + 1), 0, { size: 'sm' })], gap: 12 },
       answer: buildChoice(r, opts[0] as Option, [opts[1] as Option, opts[2] as Option], 3),
       hint: { say: '긴바늘이 한 바퀴 돌아 제자리에 오면 60분이 지난 거예요.' },
       explain: '긴바늘이 한 바퀴 돌면 60분, 곧 1시간이 지난 거예요.',
@@ -446,7 +446,7 @@ export function hourAfterGen(c: GenCtx): Question {
       explain,
     });
   }
-  const text2 = `${tt}에서 ${hours} ${word}로 시계를 맞춰 보세요.`;
+  const text2 = `${tt}에서 ${hours} ${word}${josa(word, '으로/로')} 시계를 맞춰 보세요.`;
   return mk(c, {
     prompt: text2,
     say: text2,

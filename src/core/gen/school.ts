@@ -149,7 +149,7 @@ function betweenQ(c: GenCtx, d: Day): Question {
     say: text,
     visual: tableVis(d),
     answer: buildChoice(r, subjOpt(mid), wrongs, 3),
-    hint: { say: `${a.ko}${josa(a.ko, '과/와')} ${b.ko}를 찾고, 그 가운데 줄을 읽어요.` },
+    hint: { say: `${a.ko}${josa(a.ko, '과/와')} ${b.ko}${josa(b.ko, '을/를')} 찾고, 그 가운데 줄을 읽어요.` },
     explain: `${a.ko}${josa(a.ko, '과/와')} ${b.ko} 사이는 ${mid.ko}${josa(mid.ko, '이에요/예요')}.`,
   });
 }

@@ -470,12 +470,12 @@ export function laterGen(c: GenCtx): Question {
   const d = after ? int(r, 1, dim - n) : int(r, n + 1, dim);
   const target = after ? d + n : d - n;
   return mk(c, {
-    prompt: `${d}일에서 ${n}일 ${kind}는 며칠일까요?`,
-    say: `${dayKo(d)}에서 ${n}일 ${kind}는 며칠일까요?`,
+    prompt: `${d}일에서 ${n}일 ${kind}${josa(kind, '은/는')} 며칠일까요?`,
+    say: `${dayKo(d)}에서 ${n}일 ${kind}${josa(kind, '은/는')} 며칠일까요?`,
     visual: calOf(y, m, { [d]: 'start' }),
     answer: buildChoice(r, dayOpt(target), nearDays(target, dim), 3),
     hint: { say: after ? `${d}일 다음 칸부터 ${n}칸을 세어 봐요.` : `${d}일 전 칸부터 거꾸로 ${n}칸을 세어 봐요.`, visual: calOf(y, m, laterMarks(d, after ? n : -n)) },
-    explain: `${d}일에서 ${n}일 ${kind}는 ${target}일이에요.`,
+    explain: `${d}일에서 ${n}일 ${kind}${josa(kind, '은/는')} ${target}일이에요.`,
   });
 }
 
@@ -489,12 +489,13 @@ export function laterHuntGen(c: GenCtx): Question {
   const after = L < 3 || chance(r, 0.6);
   const d = after ? int(r, 1, dim - n) : int(r, n + 1, dim);
   const target = after ? d + n : d - n;
+  const word = after ? '뒤' : '전';
   return mk(c, {
-    prompt: `${m}월 ${d}일에서 ${n}일 ${after ? '뒤' : '전'}를 찾아 눌러 보세요.`,
-    say: `${monthKo(m)} ${dayKo(d)}에서 ${n}일 ${after ? '뒤' : '전'}를 찾아 눌러 보세요.`,
+    prompt: `${m}월 ${d}일에서 ${n}일 ${word}${josa(word, '을/를')} 찾아 눌러 보세요.`,
+    say: `${monthKo(m)} ${dayKo(d)}에서 ${n}일 ${word}${josa(word, '을/를')} 찾아 눌러 보세요.`,
     answer: { t: 'calTap', year: y, month: m, targets: [target], need: 'one', marks: { [d]: 'start' } },
     hint: { say: after ? `${d}일 다음 칸부터 ${n}칸을 세어 봐요.` : `${d}일 전 칸부터 거꾸로 ${n}칸을 세어 봐요.`, visual: calOf(y, m, laterMarks(d, after ? n : -n)) },
-    explain: `${n}일 ${after ? '뒤' : '전'}는 ${target}일이에요.`,
+    explain: `${n}일 ${word}${josa(word, '은/는')} ${target}일이에요.`,
   });
 }
 

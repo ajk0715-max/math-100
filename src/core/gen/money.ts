@@ -454,12 +454,12 @@ export function buyGen(c: GenCtx): Question {
     const change = 500 - price;
     const wrongs = [change + 100, change - 100, change + 50, price, change - 50].filter((x) => x >= 10 && x !== change && x < 500);
     return mk(c, {
-      prompt: `500원을 내고 ${price}원짜리 ${withJosa(g.name, '을/를')} 샀어요. 거스름돈은 얼마일까요?`,
-      say: `500원을 내고 ${price}원짜리 ${withJosa(g.name, '을/를')} 샀어요. 거스름돈은 얼마일까요?`,
+      prompt: `500원으로 ${price}원짜리 ${withJosa(g.name, '을/를')} 샀어요. 남은 돈은 얼마일까요?`,
+      say: `500원으로 ${price}원짜리 ${withJosa(g.name, '을/를')} 샀어요. 남은 돈은 얼마일까요?`,
       visual: { k: 'row', items: [coinVis([500]), priceVis(g, price)], gap: 14, wrap: true },
       answer: buildChoice(r, wonOpt(change), wrongs.map(wonOpt), 3),
-      hint: { say: `500원에서 ${price}원을 빼면 돼요. 남은 돈이 거스름돈이에요.`, visual: { k: 'eq', parts: ['500', '−', String(price), '=', '?'] } },
-      explain: `500 − ${price} = ${change}, 거스름돈은 ${change}원이에요.`,
+      hint: { say: `500원에서 ${price}원을 빼면 돼요. 쓰고 남은 돈을 구하는 거예요.`, visual: { k: 'eq', parts: ['500', '−', String(price), '=', '?'] } },
+      explain: `500 − ${price} = ${change}, 남은 돈은 ${change}원이에요.`,
     });
   }
   const pa = pick(r, [100, 200, 300]);

@@ -100,7 +100,7 @@ export function tenEqGen(c: GenCtx): Question {
     if (form === 'blank') {
       return mk(c, {
         prompt: `□ + ${b} = 10에서 □에 알맞은 수는 무엇일까요?`,
-        say: `네모 더하기 ${b}는 십에서 네모에 알맞은 수는 무엇일까요?`,
+        say: `네모 더하기 ${b}${jo(b, '은/는')} 십에서 네모에 알맞은 수는 무엇일까요?`,
         visual: eqV(['?', '+', String(b), '=', '10'], 'grape'),
         answer: numChoice(r, a, 1, 9, { say: sn9, spread: 2 }),
         hint: { say: `10에서 ${b}${jo(b, '을/를')} 덜어 내면 남는 수가 □예요.`, visual: frame },
@@ -113,7 +113,7 @@ export function tenEqGen(c: GenCtx): Question {
       visual: eqV(['10', '−', String(a), '=', '?'], 'tangerine'),
       answer: numChoice(r, b, 1, 9, { say: sn9, spread: 2 }),
       hint: { say: `10칸 틀에서 ${a}칸을 지우면 남은 칸을 세어 봐요.`, visual: { k: 'objects', emoji: obj.emoji, n: 10, crossed: a, layout: 'frame10' } },
-      explain: `10 − ${a} = ${b}이에요.`,
+      explain: `10 − ${a} = ${b}${jo(b, '이에요/예요')}.`,
     });
   }
   const form = pick(r, ['sum', 'left', 'right', 'sub'] as const);
@@ -134,7 +134,7 @@ export function tenEqGen(c: GenCtx): Question {
       visual: eqV(['10', '−', String(a), '=', '?'], 'tangerine'),
       answer: { t: 'number', correct: b, maxDigits: 1 },
       hint: { say: `${a}${jo(a, '과/와')} 짝이 되는 수를 떠올려 봐요.`, visual: { k: 'objects', emoji: obj.emoji, n: 10, crossed: a, layout: 'frame10' } },
-      explain: `10 − ${a} = ${b}이에요.`,
+      explain: `10 − ${a} = ${b}${jo(b, '이에요/예요')}.`,
     });
   }
   const parts = form === 'left' ? ['?', '+', String(b), '=', '10'] : [String(a), '+', '?', '=', '10'];
@@ -142,7 +142,7 @@ export function tenEqGen(c: GenCtx): Question {
   const ans = form === 'left' ? a : b;
   return mk(c, {
     prompt: `□에 알맞은 수를 눌러 알려 주세요. ${form === 'left' ? `□ + ${b} = 10` : `${a} + □ = 10`}`,
-    say: `네모에 알맞은 수를 눌러 알려 주세요. ${form === 'left' ? `네모 더하기 ${b}는 십` : `${a} 더하기 네모는 십`}`,
+    say: `네모에 알맞은 수를 눌러 알려 주세요. ${form === 'left' ? `네모 더하기 ${b}${jo(b, '은/는')} 십` : `${a} 더하기 네모는 십`}`,
     visual: eqV(parts, 'grape'),
     answer: { t: 'number', correct: ans, maxDigits: 1 },
     hint: { say: `${given}${jo(given, '과/와')} 짝이 되는 수를 찾아요. 더해서 10이 돼야 해요.`, visual: frame },
@@ -440,7 +440,7 @@ export function calc20Gen(cfg: { op: '+' | '−' }) {
       say: `답이 ${e.value}인 식을 눌러 보세요.`,
       answer: { t: 'tapTargets', items, targets: ['ans'], cols: 2, need: 'one' },
       hint: { say: '식을 하나씩 계산해서 답이 맞는지 확인해 봐요.' },
-      explain: `${e.a} ${e.op} ${e.b} = ${e.value}이에요.`,
+      explain: `${e.a} ${e.op} ${e.b} = ${e.value}${jo(e.value, '이에요/예요')}.`,
     });
   };
 }
@@ -472,7 +472,7 @@ export function carryTasteGen(c: GenCtx): Question {
       say: `${a}에 얼마를 더하면 십이 될까요?`,
       visual: { k: 'objects', emoji: obj.emoji, n: a, layout: 'frame10' },
       answer: numChoice(r, toTen, 1, 9, { say: sn9, spread: 2 }),
-      hint: { say: '10칸 틀에서 비어 있는 칸을 세어 봐요.', visual: frame },
+      hint: { say: '10칸 틀에서 비어 있는 칸을 세어 봐요.', visual: { k: 'objects', emoji: obj.emoji, n: 10, layout: 'frame10' } },
       explain: `${a} + ${toTen} = 10이에요.`,
     });
   }

@@ -353,7 +353,7 @@ export function weightGen(c: GenCtx): Question {
       visual: { k: 'row', items: trio.map(bigThing), gap: 10 },
       answer: buildChoice(r, thingOpt(rightT), [a, b, d].filter((t) => t !== rightT).map(thingOpt), 3, 3),
       hint: { say: `손으로 들어 본다고 생각해 봐요. 가장 ${wantHeavy ? '들기 힘든' : '가볍게 들리는'} 것을 찾아요.` },
-      explain: `${a.name}, ${b.name}, ${d.name} 순서로 무거워요. 가장 ${wantHeavy ? '무거운' : '가벼운'} 것은 ${rightT.name}이에요.`,
+      explain: `${a.name}, ${b.name}, ${d.name} 순서로 무거워요. 가장 ${wantHeavy ? '무거운' : '가벼운'} 것은 ${rightT.name}${josa(rightT.name, '이에요/예요')}.`,
     });
   }
 
@@ -371,7 +371,7 @@ export function weightGen(c: GenCtx): Question {
     visual: { k: 'row', items: [sw1, sw2], gap: 10 },
     answer: buildChoice(r, thingOpt(rightT), trio.filter((t) => t !== rightT).map(thingOpt), 3, 3),
     hint: { say: '두 시소에서 아래로 내려간 쪽을 각각 찾아요. 두 번 다 내려간 것이 가장 무거워요.' },
-    explain: `${withJosa(a.name, '은/는')} ${b.name}보다 무겁고, ${withJosa(b.name, '은/는')} ${d.name}보다 무거워요. 가장 ${wantHeavy ? '무거운' : '가벼운'} 것은 ${rightT.name}이에요.`,
+    explain: `${withJosa(a.name, '은/는')} ${b.name}보다 무겁고, ${withJosa(b.name, '은/는')} ${d.name}보다 무거워요. 가장 ${wantHeavy ? '무거운' : '가벼운'} 것은 ${rightT.name}${josa(rightT.name, '이에요/예요')}.`,
   });
 }
 

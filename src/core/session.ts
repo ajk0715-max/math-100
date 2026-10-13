@@ -378,6 +378,8 @@ export function finishBoss(profile: Profile, block: number, outcome: BossOutcome
     stars: profile.stars + stars,
     starsTotal: profile.starsTotal + stars,
     lastLessonDate: today,
+    // 100일 마지막 보스를 처음 통과한 날을 수료증에 적는다
+    ...(block === BLOCK_COUNT && fresh ? { completedOn: today } : {}),
   };
 }
 
