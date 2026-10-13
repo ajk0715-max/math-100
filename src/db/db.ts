@@ -22,6 +22,8 @@ export interface SessionRec {
   completed: boolean;
   /** 이 날의 첫 수업인가(별은 첫 수업에서만 준다) */
   firstOfDay: boolean;
+  /** 건너뛰기 도전으로 푼 보스전인가 */
+  skip?: boolean;
 }
 
 export interface AttemptRec {

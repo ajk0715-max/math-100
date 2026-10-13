@@ -3,10 +3,14 @@
 import { useEffect } from 'react';
 import { unlockAudio } from '@/audio/sfx';
 import { watchInstall } from './install';
+import { Diagnostic } from './diagnostic/Diagnostic';
 import { Home } from './Home';
 import { BossRunner } from './lesson/BossRunner';
+import { ExtraRunner } from './lesson/ExtraRunner';
 import { LessonRunner } from './lesson/LessonRunner';
-import { Parent } from './Parent';
+import { Parent } from './parent/Parent';
+import { Stickers } from './rewards/Stickers';
+import { Village } from './rewards/Village';
 import { StoreProvider, useStore } from './store';
 import { Wizard } from './Wizard';
 
@@ -37,9 +41,17 @@ function Screens() {
     case 'lesson':
       return <LessonRunner key={`l${screen.day}-${screen.n ?? 0}`} day={screen.day} />;
     case 'boss':
-      return <BossRunner key={`b${screen.block}-${screen.n ?? 0}`} block={screen.block} />;
+      return <BossRunner key={`b${screen.block}-${screen.n ?? 0}-${screen.skip ? 's' : ''}`} block={screen.block} skip={!!screen.skip} />;
+    case 'extra':
+      return <ExtraRunner key={`x${screen.n ?? 0}`} />;
+    case 'diagnostic':
+      return <Diagnostic key={`d${screen.n ?? 0}`} />;
     case 'parent':
       return <Parent />;
+    case 'stickers':
+      return <Stickers />;
+    case 'village':
+      return <Village key={screen.tab ?? 'town'} tab={screen.tab} />;
     default:
       return <Home />;
   }

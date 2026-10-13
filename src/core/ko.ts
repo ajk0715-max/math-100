@@ -183,5 +183,7 @@ export function speak(text: string): string {
   });
   s = s.replace(/\d+/g, (num) => readNumber(Number(num)));
   s = s.replace(/\s*\+\s*/g, ' 더하기 ').replace(/\s*[−–]\s*/g, ' 빼기 ').replace(/\s*[×x]\s*(?=\S)/g, ' 곱하기 ');
+  // 5 − 2 = 3 → "오 빼기 이는 삼": 등호 앞 말에 은/는을 붙여 읽는다
+  s = s.replace(/(\S+?)\s*=\s*/g, (_m, a: string) => `${a}${josa(a, '은/는')} `);
   return s.replace(/\s{2,}/g, ' ').trim();
 }

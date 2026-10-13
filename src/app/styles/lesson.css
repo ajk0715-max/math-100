@@ -221,6 +221,34 @@
   }
 }
 
+/* ---------- 추가 놀이: 줄어드는 시간 막대 ---------- */
+.timebar {
+  position: relative;
+  height: 2rem;
+  border: 3px solid var(--ink);
+  border-radius: 999px;
+  background: var(--sheet);
+  overflow: hidden;
+}
+.timebar .fill {
+  position: absolute;
+  inset: 0 auto 0 0;
+  background: var(--sun-l);
+  border-right: 3px solid var(--sun-d);
+  transition: width 0.5s linear;
+}
+.timebar > span {
+  position: relative;
+  display: block;
+  text-align: center;
+  line-height: calc(2rem - 6px);
+  font-size: 0.95rem;
+  color: var(--ink);
+}
+.timebar .emo {
+  font-size: 1rem;
+}
+
 /* ---------- 보스 ---------- */
 .bossbar {
   display: flex;

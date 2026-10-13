@@ -186,6 +186,23 @@
   --gl: #f08aa5;
 }
 
+/* 키 순서 줄서기: 운동장 */
+.gamestage.t-lineup {
+  --gs: #e4f4d8;
+  --gs0: rgb(228 244 216 / 0);
+  --gl: #92cf72;
+  background-image: repeating-linear-gradient(90deg, transparent 0 38px, rgb(255 255 255 / 0.4) 38px 40px);
+}
+
+/* 시소 놀이터 */
+.gamestage.t-seesaw {
+  --gs: #fff0cf;
+  --gs0: rgb(255 240 207 / 0);
+  --gl: #eebb55;
+  background-image: radial-gradient(circle at 16px 16px, rgb(255 255 255 / 0.7) 0 3px, transparent 3.5px);
+  background-size: 32px 32px;
+}
+
 /* ---------- 판 아래쪽 풍경(눌러도 반응하지 않는 장식) ---------- */
 .gamestage > * {
   position: relative;

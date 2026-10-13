@@ -292,14 +292,16 @@ export function balloonsShapeGen(c: GenCtx): Question {
 const ANIMALS = ['토끼', '곰', '여우', '고양이', '강아지', '다람쥐', '코끼리', '펭귄'];
 const DOINGS = ['간식을 먹어요', '책을 읽어요', '그림을 그려요', '산책을 가요', '공놀이를 해요', '노래를 불러요', '양치질을 해요', '친구를 만나요'];
 
-export function handsGen(cfg: { hours: number[]; wording: 'pointer' | 'time'; half?: boolean }) {
+/** half: 30분 시각이 나올 확률(true면 0.5). halfFrom: 이 단계부터 30분이 나온다(기본 2). */
+export function handsGen(cfg: { hours: number[]; wording: 'pointer' | 'time'; half?: boolean | number; halfFrom?: Level }) {
+  const halfP = typeof cfg.half === 'number' ? cfg.half : cfg.half ? 0.5 : 0;
   return (c: GenCtx): Question => {
     const r = c.rng;
     const L = c.level;
     const easy = cfg.hours.filter((h) => h === 12 || h === 3 || h === 6 || h === 9);
     const pool = L === 1 && easy.length >= 2 && cfg.wording === 'pointer' ? easy : cfg.hours;
     const h = pick(r, pool);
-    const useHalf = !!cfg.half && L >= 2 && chance(r, 0.5);
+    const useHalf = halfP > 0 && L >= (cfg.halfFrom ?? 2) && chance(r, halfP);
     const m = useHalf ? 30 : 0;
     const mode = useHalf ? 'half' : 'hour';
     const hintVisual = clockVis(h, m, { size: 'md' });
@@ -361,14 +363,15 @@ export function handsGen(cfg: { hours: number[]; wording: 'pointer' | 'time'; ha
 // 시계 짝 맞추기
 // ---------------------------------------------------------------------------
 
-export function clockMatchGen(cfg: { hours: number[]; half?: boolean }) {
+export function clockMatchGen(cfg: { hours: number[]; half?: boolean | number; halfFrom?: Level }) {
+  const halfP = typeof cfg.half === 'number' ? cfg.half : cfg.half ? 0.4 : 0;
   return (c: GenCtx): Question => {
     const r = c.rng;
     const L = c.level;
     const want = L === 1 ? 3 : L === 2 ? 4 : 5;
     const hours = sample(r, cfg.hours, Math.min(want, cfg.hours.length));
     const pairs: MatchPair[] = hours.map((h) => {
-      const m = cfg.half && L >= 2 && chance(r, 0.4) ? 30 : 0;
+      const m = halfP > 0 && L >= (cfg.halfFrom ?? 2) && chance(r, halfP) ? 30 : 0;
       const label = L === 3 ? `${h}:${m === 0 ? '00' : '30'}` : timeText(h, m);
       return { key: `t${h}-${m}`, a: { visual: clockVis(h, m, { size: 'sm' }) }, b: { text: label } };
     });
@@ -377,8 +380,12 @@ export function clockMatchGen(cfg: { hours: number[]; half?: boolean }) {
       prompt: text,
       say: text,
       answer: { t: 'match', pairs },
-      hint: { say: '긴바늘이 12에 있는지 보고, 짧은바늘이 가리키는 숫자를 읽어 봐요.' },
-      explain: '짧은바늘이 가리키는 숫자가 시각이에요.',
+      hint: {
+        say: pairs.some((p) => p.key.endsWith('-30'))
+          ? '긴바늘이 12에 있으면 정각, 6에 있으면 30분이에요. 짧은바늘이 지나간 숫자를 읽어 봐요.'
+          : '긴바늘이 12에 있는지 보고, 짧은바늘이 가리키는 숫자를 읽어 봐요.',
+      },
+      explain: '짧은바늘이 가리키는 숫자가 시각이고, 긴바늘이 6이면 30분이에요.',
     });
   };
 }

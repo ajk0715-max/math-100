@@ -1,6 +1,8 @@
 import { WEEKDAYS_LONG } from './dates';
-import { calGridGen, monthsGen, weekdayNameGen, weekdayOrderGen } from './gen/calendar';
-import { clockPartsGen, daypartGen, hourHandGen, hourReadGen } from './gen/clock';
+import { josa } from './ko';
+import { arithGen, balloonsArithGen, mixGen } from './gen/arith';
+import { calGridGen, dateReadGen, dateTodayGen, findDateGen, monthsGen, relDayGen, weekdayNameGen, weekdayOrderGen } from './gen/calendar';
+import { clockPartsGen, daypartGen, halfReadGen, halfSeeGen, halfTapGen, hourHandGen, hourReadGen } from './gen/clock';
 import { bondGen, compareGen, countGen, orderGen, writeGen } from './gen/number';
 import {
   balloonsCompareGen,
@@ -16,6 +18,8 @@ import {
   stonesGen,
   weekTrainGen,
 } from './gen/games';
+import { areaGen, lengthGen, lineupGen, weightGen } from './gen/measure';
+import { routineGen, routineMatchGen, routineTimeGen } from './gen/routine';
 import { shape2dGen, solidGen } from './gen/shape';
 import { range } from './gen/util';
 import type { Area, GameId, GenCtx, Question, Skill } from './types';
@@ -55,6 +59,45 @@ const monthConfuse: Skill['confuse'] = (e, g) => {
   return `${x}월과 ${y}월 혼동`;
 };
 
+/** "3" 또는 "3:30" 또는 "3:0" 꼴의 시각 키를 읽는다 */
+function parseTimeKey(k: string): { h: number; m: number } | null {
+  const [hs, ms] = k.split(':');
+  const h = Number(hs);
+  const m = ms === undefined ? 0 : Number(ms);
+  if (!Number.isInteger(h) || h < 1 || h > 12 || !Number.isInteger(m)) return null;
+  return { h, m };
+}
+const timeLabel = (t: { h: number; m: number }): string => (t.m === 0 ? `${t.h}시` : `${t.h}시 ${t.m}분`);
+/** 정각·30분 시각 사이의 헷갈림: "3시와 3시 30분 혼동", "3시 30분과 4시 30분 혼동" */
+const halfConfuse: Skill['confuse'] = (e, g) => {
+  const a = parseTimeKey(e);
+  const b = parseTimeKey(g);
+  if (!a || !b || (a.h === b.h && a.m === b.m)) return null;
+  const [x, y] = a.h * 60 + a.m < b.h * 60 + b.m ? [a, b] : [b, a];
+  const lx = timeLabel(x);
+  return `${lx}${josa(lx, '과/와')} ${timeLabel(y)} 혼동`;
+};
+/** 긴바늘이 12인지 6인지 */
+const halfKindConfuse: Skill['confuse'] = (e, g) => (e === g ? null : '정각과 30분 혼동');
+/** 날짜를 읽을 때 헷갈린 부분을 큰 갈래로 묶는다 */
+const dateConfuse: Skill['confuse'] = (e, g) => {
+  const a = e.split('-');
+  const b = g.split('-');
+  if (e === g || a.length !== b.length) return null;
+  if (a.length === 1) return /^\d+$/.test(e) && /^\d+$/.test(g) ? '며칠인지 헷갈림' : null;
+  if (a[0] !== b[0]) return '몇 월인지 헷갈림';
+  if (a[1] !== b[1]) return '며칠인지 헷갈림';
+  if (a[2] !== b[2]) return '요일이 헷갈림';
+  return null;
+};
+/** 답이 정확히 1 차이로 틀린 경우 */
+const offByOne = (what: string) => (e: string, g: string): string | null => {
+  const a = Number(e);
+  const b = Number(g);
+  return Number.isInteger(a) && Number.isInteger(b) && Math.abs(a - b) === 1 ? `${what} 하나 차이로 틀림` : null;
+};
+const opConfuse: Skill['confuse'] = (e, g) => ((e === '+' && g === '−') || (e === '−' && g === '+') ? '더하기와 빼기 혼동' : offByOne('덧셈·뺄셈')(e, g));
+
 // ---- 블록 1 ----
 def('num.count5', '5까지 세기', 'num', countGen({ lo: 1, hi: 5, l1hi: 3 }));
 def('num.count10', '10까지 세기·읽기', 'num', countGen({ lo: 6, hi: 10, l1hi: 8 }));
@@ -86,6 +129,39 @@ def('geo.shape2d', '네모·세모·동그라미', 'shape', shape2dGen);
 def('cal.months', '12개월', 'cal', monthsGen, { confuse: monthConfuse });
 def('cal.grid', '달력 보는 법', 'cal', calGridGen, { confuse: weekdayConfuse });
 
+// ---- 블록 6 ----
+def('add.pic5', '덧셈: 합치기 (합 5 이하)', 'num', arithGen({ op: '+', lo: 2, hi: 5, l1hi: 4, form: 'pic' }), { confuse: offByOne('덧셈') });
+def('add.eq5', '덧셈식 (합 5 이하)', 'num', arithGen({ op: '+', lo: 2, hi: 5, l1hi: 4, form: 'eq' }), { confuse: offByOne('덧셈') });
+def('clk.half.see', '정각과 30분 구별', 'clock', halfSeeGen, { confuse: halfKindConfuse });
+def('clk.half.a', '몇 시 30분 읽기 (1~6시)', 'clock', halfReadGen({ hours: range(1, 6) }), { confuse: halfConfuse });
+
+// ---- 블록 7 ----
+def('add.pic9', '덧셈: 합치기 (합 9 이하)', 'num', arithGen({ op: '+', lo: 5, hi: 9, l1hi: 7, form: 'pic' }), { confuse: offByOne('덧셈') });
+def('add.eq9', '덧셈식 (합 9 이하)', 'num', arithGen({ op: '+', lo: 5, hi: 9, l1hi: 7, form: 'eq' }), { confuse: offByOne('덧셈') });
+def('clk.half.b', '몇 시 30분 읽기 (7~12시)', 'clock', halfReadGen({ hours: range(7, 12) }), { confuse: halfConfuse });
+def('clk.read.mix', '몇 시·몇 시 30분 읽기', 'clock', halfReadGen({ hours: range(1, 12), mix: true }), { confuse: halfConfuse });
+def('clk.set.half', '시계 바늘 맞추기 (몇 시, 몇 시 30분)', 'clock', handsGen({ hours: range(1, 12), wording: 'time', half: 0.6, halfFrom: 1 }), { confuse: halfConfuse });
+
+// ---- 블록 8 ----
+def('sub.pic5', '뺄셈: 덜어 내기 (5 이하)', 'num', arithGen({ op: '−', lo: 2, hi: 5, l1hi: 4, form: 'pic' }), { confuse: offByOne('뺄셈') });
+def('sub.eq5', '뺄셈식 (5 이하)', 'num', arithGen({ op: '−', lo: 2, hi: 5, l1hi: 4, form: 'eq' }), { confuse: offByOne('뺄셈') });
+def('cal.today', '오늘은 몇 월 며칠', 'cal', dateTodayGen, { confuse: dateConfuse });
+def('cal.dateRead', '달력에서 날짜 읽기', 'cal', dateReadGen, { confuse: dateConfuse });
+
+// ---- 블록 9 ----
+def('sub.pic9', '뺄셈: 덜어 내기 (9 이하)', 'num', arithGen({ op: '−', lo: 5, hi: 9, l1hi: 7, form: 'pic' }), { confuse: offByOne('뺄셈') });
+def('sub.eq9', '뺄셈식 (9 이하)', 'num', arithGen({ op: '−', lo: 5, hi: 9, l1hi: 7, form: 'eq' }), { confuse: offByOne('뺄셈') });
+def('mix.addsub9', '덧셈·뺄셈 섞기 (9 이하)', 'num', mixGen({ hi: 9, l1hi: 6 }), { confuse: opConfuse });
+def('cal.relday', '어제·오늘·내일', 'cal', relDayGen, { confuse: dateConfuse });
+def('cal.find', '달력에서 날짜 찾기', 'cal', findDateGen, { confuse: dateConfuse });
+
+// ---- 블록 10 ----
+def('cmp.length', '길이·높이 비교', 'measure', lengthGen);
+def('cmp.weight', '무게 비교', 'measure', weightGen);
+def('cmp.area', '넓이 비교', 'measure', areaGen);
+def('life.routine', '하루 일과 순서', 'life', routineGen);
+def('life.routineTime', '일과와 시각', 'life', routineTimeGen, { confuse: halfConfuse });
+
 // ---- 보너스 게임 (블록 1~5) ----
 function game(id: string, name: string, area: Area, gameId: GameId, gen: (c: GenCtx) => Question, confuse?: Skill['confuse']): void {
   def(id, name, area, gen, { game: gameId, noBoss: true, ...(confuse ? { confuse } : {}) });
@@ -110,6 +186,24 @@ game('game.balloons.solid', '풍선 터뜨리기 (입체 모양)', 'shape', 'bal
 game('game.balloons.shape', '풍선 터뜨리기 (평면 모양)', 'shape', 'balloons', balloonsShapeGen);
 game('game.monthTrain', '달 기차', 'cal', 'weekTrain', monthTrainGen, monthConfuse);
 game('game.dateHunt.a', '날짜 보물찾기', 'cal', 'dateHunt', dateHuntGen, weekdayConfuse);
+
+// ---- 보너스 게임 (블록 6~10) ----
+game('game.jars.merge5', '구슬 병 (5 모으기)', 'num', 'jars', jarsGen({ lo: 2, hi: 5, mode: 'merge' }));
+game('game.balloons.halfSee', '풍선 터뜨리기 (정각·30분 시계)', 'clock', 'balloons', halfTapGen, halfKindConfuse);
+game('game.balloons.add5', '풍선 터뜨리기 (더하기 5까지)', 'num', 'balloons', balloonsArithGen({ op: '+', lo: 2, hi: 5 }));
+game('game.hands.half.a', '바늘 돌리기 (몇 시 30분, 1~6시)', 'clock', 'hands', handsGen({ hours: range(1, 6), wording: 'time', half: 0.6, halfFrom: 1 }), halfConfuse);
+game('game.clockMatch.half.a', '시계 짝 맞추기 (30분 포함, 1~6시)', 'clock', 'clockMatch', clockMatchGen({ hours: range(1, 6), half: 0.6, halfFrom: 1 }), halfConfuse);
+game('game.balloons.add9', '풍선 터뜨리기 (더하기 9까지)', 'num', 'balloons', balloonsArithGen({ op: '+', lo: 5, hi: 9 }));
+game('game.fish.add9', '별 낚시 (더하기)', 'num', 'fish', arithGen({ op: '+', lo: 2, hi: 9, l1hi: 6, form: 'eq' }), offByOne('덧셈'));
+game('game.hands.half.b', '바늘 돌리기 (몇 시 30분, 7~12시)', 'clock', 'hands', handsGen({ hours: range(7, 12), wording: 'time', half: 0.6, halfFrom: 1 }), halfConfuse);
+game('game.clockMatch.half.b', '시계 짝 맞추기 (30분 포함, 1~12시)', 'clock', 'clockMatch', clockMatchGen({ hours: range(1, 12), half: 0.5, halfFrom: 1 }), halfConfuse);
+game('game.balloons.sub5', '풍선 터뜨리기 (빼기 5까지)', 'num', 'balloons', balloonsArithGen({ op: '−', lo: 2, hi: 5 }));
+game('game.balloons.sub9', '풍선 터뜨리기 (빼기 9까지)', 'num', 'balloons', balloonsArithGen({ op: '−', lo: 5, hi: 9 }));
+game('game.fish.sub9', '별 낚시 (빼기)', 'num', 'fish', arithGen({ op: '−', lo: 2, hi: 9, l1hi: 6, form: 'eq' }), offByOne('뺄셈'));
+game('game.balloons.mix9', '풍선 터뜨리기 (더하기·빼기 9까지)', 'num', 'balloons', balloonsArithGen({ op: 'mix', lo: 2, hi: 9 }));
+game('game.lineup', '막대 줄 세우기', 'measure', 'lineup', lineupGen);
+game('game.seesaw', '시소 놀이', 'measure', 'seesaw', weightGen);
+game('game.routineMatch', '일과와 시계 짝 맞추기', 'life', 'clockMatch', routineMatchGen, halfConfuse);
 
 export function getSkill(id: string): Skill {
   const s = REGISTRY.get(id);

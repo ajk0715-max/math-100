@@ -40,7 +40,7 @@ export function Order({ spec, status, attempt, onSubmit }: AnswerProps<'order'>)
   };
 
   const n = spec.items.length;
-  const cols = style === 'train' ? n : n <= 3 ? n : n === 4 ? 2 : 3;
+  const cols = style === 'train' || style === 'oneline' ? n : n <= 3 ? n : n === 4 ? 2 : 3;
 
   return (
     <div className={`order ${style}`} style={{ ['--cols' as string]: cols }}>

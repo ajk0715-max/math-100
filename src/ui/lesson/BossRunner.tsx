@@ -36,6 +36,11 @@ interface Result {
   wrongTypes: number;
 }
 
+const SKIP_INTRO: IntroCard[] = [
+  { text: '이 단계를 이미 알고 있는지 확인해 볼게!', say: '이 단계를 이미 알고 있는지 확인해 볼게!' },
+  { text: '열다섯 문제 중 열두 문제를 한 번에 맞히면, 이 단계는 건너뛰고 다음으로 가!', say: '열다섯 문제 중 열두 문제를 한 번에 맞히면, 이 단계는 건너뛰고 다음으로 가!' },
+];
+
 const rid = (): string => (typeof crypto !== 'undefined' && 'randomUUID' in crypto ? crypto.randomUUID() : `b${Date.now().toString(36)}${Math.random().toString(36).slice(2, 8)}`);
 
 function BossBar({ left, total, hit }: { left: number; total: number; hit: number }) {
@@ -52,8 +57,11 @@ function BossBar({ left, total, hit }: { left: number; total: number; hit: numbe
   );
 }
 
-/** 5일째 보스전: 열다섯 문제를 한 번씩만 풀고, 80% 이상이면 스티커를 받는다 */
-export function BossRunner({ block }: { block: number }) {
+/**
+ * 5일째 보스전: 열다섯 문제를 한 번씩만 풀고, 80% 이상이면 스티커를 받는다.
+ * skip이면 보호자가 연 '건너뛰기 도전'이다. 통과하면 이 단계를 건너뛰고, 통과하지 못해도 기록에는 아무 영향이 없다.
+ */
+export function BossRunner({ block, skip = false }: { block: number; skip?: boolean }) {
   const store = useStore();
   const { env, today, go, update, latest } = store;
   const day = block * 5;
@@ -81,13 +89,13 @@ export function BossRunner({ block }: { block: number }) {
       const p = latest() as Profile;
       const open = await findOpenSession(p.id);
       let r: SessionRec | null = null;
-      if (open && open.kind === 'boss' && open.day === day) {
+      if (open && open.kind === 'boss' && open.day === day && !!open.skip === skip) {
         r = open;
       } else {
         if (open) await saveSession({ ...open, endedAt: Date.now() });
         const past = (await allSessions(p.id)).filter((s) => s.day === day && s.kind === 'boss').sort((a, b) => a.startedAt - b.startedAt);
-        const last = past[past.length - 1];
-        // 지난번에 통과하지 못했다면 틀린 유형만 다시 낸다
+        // 지난번에 통과하지 못했다면 틀린 유형만 다시 낸다(건너뛰기 도전은 언제나 처음부터 열다섯 문제)
+        const last = skip ? undefined : past.filter((s) => !s.skip).pop();
         let retryFrom: { skill: string; wrong: number }[] | undefined;
         if (last?.completed) {
           const o = bossOutcome(last.plan.slots);
@@ -108,6 +116,7 @@ export function BossRunner({ block }: { block: number }) {
           introSeen: false,
           completed: false,
           firstOfDay: false,
+          ...(skip ? { skip: true } : {}),
         };
         await saveSession(r);
       }
@@ -164,10 +173,11 @@ export function BossRunner({ block }: { block: number }) {
       const rate = out.correct / Math.max(1, out.total);
       const firstRate = (p0.blocks[block]?.tries ?? 0) === 0 ? rate : 0;
       const before = p0.stars;
-      const p1 = update((p) => finishBoss(p, block, out, firstRate, today));
+      const p1 = update((p) => finishBoss(p, block, out, firstRate, today, skip));
       res = { passed: true, correct: out.correct, total: out.total, stars: p1.stars - before, gold: p1.stickers[block] === 'gold', wrongTypes: 0 };
     } else {
-      update((p) => recordBossFail(p, block, out.correct, out.total));
+      // 건너뛰기 도전에서 통과하지 못한 것은 기록하지 않는다(나중에 보스를 첫 도전에 통과하면 금 스티커를 받을 수 있게)
+      if (!skip) update((p) => recordBossFail(p, block, out.correct, out.total));
       res = { passed: false, correct: out.correct, total: out.total, stars: 0, gold: false, wrongTypes: out.wrongBySkill.length };
     }
     const done: SessionRec = { ...r, plan, cursor: slots.length, completed: true, endedAt: Date.now(), activeMs: activeMs.current };
@@ -257,7 +267,7 @@ export function BossRunner({ block }: { block: number }) {
     if (result.passed) {
       return (
         <Summary
-          heading={result.gold ? '금 스티커 획득!' : '보스 격파!'}
+          heading={skip ? '이 단계는 건너뛰어요!' : result.gold ? '금 스티커 획득!' : '보스 격파!'}
           buddy="bear"
           stars={result.stars}
           starsTotal={profile.stars}
@@ -273,6 +283,28 @@ export function BossRunner({ block }: { block: number }) {
             <span className="stickername">{def.sticker.name} 스티커</span>
           </div>
         </Summary>
+      );
+    }
+    if (skip) {
+      return (
+        <main className="app">
+          <div className="page center-all">
+            <section className="col center sumcol">
+              <Buddy who="bear" mood="happy" size={8} />
+              <h1 className="title">여기까지 해 봤어!</h1>
+              <p className="lead">
+                {result.total}문제 중 {result.correct}문제를 한 번에 맞혔어.
+                <br />
+                이번에는 건너뛰지 않고 이 단계를 차근차근 해 보자.
+              </p>
+              <p className="muted">괜찮아. 이 도전은 기록에 남지 않아.</p>
+              <div className="grow" />
+              <button type="button" className="btn go block" onClick={() => go({ name: 'home' }, { replace: true })}>
+                홈으로
+              </button>
+            </section>
+          </div>
+        </main>
       );
     }
     return (
@@ -300,11 +332,13 @@ export function BossRunner({ block }: { block: number }) {
     );
   }
 
-  const intro: IntroCard[] = rec.plan.retry
-    ? [{ text: '지난번에 헷갈렸던 문제만 다시 풀어 볼 거야. 이번엔 꼭 해낼 수 있어!' }]
-    : typeof lesson.intro === 'function'
-      ? lesson.intro(env)
-      : lesson.intro;
+  const intro: IntroCard[] = skip
+    ? SKIP_INTRO
+    : rec.plan.retry
+      ? [{ text: '지난번에 헷갈렸던 문제만 다시 풀어 볼 거야. 이번엔 꼭 해낼 수 있어!' }]
+      : typeof lesson.intro === 'function'
+        ? lesson.intro(env)
+        : lesson.intro;
 
   const body = (() => {
     if (phase === 'intro') {
@@ -333,7 +367,7 @@ export function BossRunner({ block }: { block: number }) {
   })();
 
   return (
-    <Frame title={`${block}단계 보스 도전`} section={phase === 'q' ? 'boss' : undefined} slots={slots} cursor={rec.cursor} idle={phase !== 'q'} boss onExit={exit}>
+    <Frame title={skip ? `${block}단계 건너뛰기 도전` : `${block}단계 보스 도전`} section={phase === 'q' ? 'boss' : undefined} slots={slots} cursor={rec.cursor} idle={phase !== 'q'} boss onExit={exit}>
       {body}
     </Frame>
   );

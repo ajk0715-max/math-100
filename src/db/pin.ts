@@ -80,6 +80,15 @@ export async function verifyPin(pin: string): Promise<PinResult> {
   return { ok: false, locked: false, remaining: MAX_FAILS - fails, lockMs: 0 };
 }
 
+/** 복구 코드가 맞는지만 확인한다(PIN은 바꾸지 않는다) */
+export async function checkRecovery(code: string): Promise<boolean> {
+  const rec = await getKv<PinRec | null>('pin', null);
+  if (!rec) return false;
+  const norm = code.replace(/[^A-Za-z0-9]/g, '').toUpperCase();
+  if (norm.length !== 8) return false;
+  return (await hash(norm, rec.recoverySalt)) === rec.recoveryHash;
+}
+
 /** 복구 코드로 PIN을 다시 정한다 */
 export async function resetPinWithRecovery(code: string, newPin: string): Promise<{ ok: boolean; recovery?: string }> {
   const rec = await getKv<PinRec | null>('pin', null);

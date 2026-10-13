@@ -6,6 +6,7 @@ import { digitalText } from '@/core/ko';
 import type { Tone, Visual } from '@/core/types';
 import { Calendar } from './Calendar';
 import { ClockFace } from './ClockFace';
+import { Bars, Cells, Routine, Seesaw } from './Measure';
 import { Objects } from './Objects';
 import { ShapeArt, SolidArt } from './Shapes';
 
@@ -132,12 +133,20 @@ export function Scene({ v }: { v: Visual }): ReactNode {
       return (
         <div className={`eq tone-${v.tone ?? 'sky'}`}>
           {v.parts.map((p, i) => (
-            <span key={i} className={/^[+−\-=×÷]$/.test(p) ? 'op' : 't'}>
+            <span key={i} className={/^[+−\-=×÷]$/.test(p) ? 'op' : p === '?' ? 't q' : 't'}>
               {p}
             </span>
           ))}
         </div>
       );
+    case 'bars':
+      return <Bars v={v} />;
+    case 'seesaw':
+      return <Seesaw v={v} />;
+    case 'cells':
+      return <Cells v={v} />;
+    case 'routine':
+      return <Routine v={v} />;
     case 'story':
       return (
         <div className="story">

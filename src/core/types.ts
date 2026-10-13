@@ -59,8 +59,9 @@ export type Visual =
   | { k: 'price'; emoji: string; name: string; won: number }
   | { k: 'shape'; shape: ShapeKind; color: Tone; rot?: number; size?: number; label?: string }
   | { k: 'solid'; solid: Solid; size?: number; emoji?: string }
-  | { k: 'bars'; items: { label: string; value: number; tone: Tone; emoji?: string }[]; dir: 'h' | 'v'; unitMax?: number; showValues?: boolean }
-  | { k: 'seesaw'; left: Group; right: Group }
+  | { k: 'bars'; items: { label: string; value: number; tone: Tone; emoji?: string }[]; dir: 'h' | 'v'; unitMax?: number; showValues?: boolean; grid?: boolean }
+  | { k: 'seesaw'; left: Group; right: Group; tilt?: 'left' | 'right' | 'level' }
+  | { k: 'cells'; cols: number; rows: number; fill?: number; tone: Tone; numbered?: boolean; fit?: number }
   | { k: 'pattern'; seq: string[]; blankAt?: number; kind: 'color' | 'emoji' | 'text' | 'shape' }
   | { k: 'pictograph'; rows: { emoji: string; n: number; label: string }[] }
   | { k: 'routine'; items: { emoji: string; label: string; time?: string }[] }
@@ -102,7 +103,7 @@ export type AnswerSpec =
   | { t: 'number'; correct: number; maxDigits: 1 | 2 | 3 }
   | { t: 'pickN'; emoji: string; total: number; n: number; unitSay: string }
   | { t: 'gaps'; seq: (number | null)[]; tokens: number[]; answers: number[] }
-  | { t: 'order'; items: OrderItem[]; correct: string[]; style?: 'cards' | 'train' | 'chips' }
+  | { t: 'order'; items: OrderItem[]; correct: string[]; style?: 'cards' | 'train' | 'chips' | 'oneline' }
   | { t: 'clockSet'; h: number; m: number; mode: 'hour' | 'half' | 'five' }
   | { t: 'tapTargets'; items: TapItem[]; targets: string[]; cols?: number; need?: 'all' | 'one' }
   | { t: 'coins'; target: number; denoms: number[]; showSum: boolean }
@@ -176,6 +177,8 @@ export type GameId =
   | 'dayCards'
   | 'weekTrain'
   | 'dateHunt'
+  | 'lineup'
+  | 'seesaw'
   | 'shop';
 
 export interface QuestionRequest {

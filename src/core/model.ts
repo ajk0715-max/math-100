@@ -31,6 +31,33 @@ export interface BlockResult {
   skipped?: boolean;
 }
 
+/** 아이가 부모에게 한 실물 보상 요청 */
+export interface WishRequest {
+  id: string;
+  rewardId: string;
+  /** 요청할 때의 이름·그림·값을 그대로 남겨 두어, 목록을 고쳐도 기록이 바뀌지 않는다 */
+  title: string;
+  emoji: string;
+  cost: number;
+  ts: number;
+  status: 'pending' | 'approved' | 'declined';
+  decidedAt?: number;
+}
+
+/** 시작 진단 결과 */
+export interface DiagnosticRecord {
+  ts: number;
+  /** 풀어 본 문제 수와 첫 시도에 맞힌 수 */
+  asked: number;
+  right: number;
+  /** 통과한 단계(0~4) */
+  tiers: number;
+  /** 진단이 제안한 시작 블록 */
+  suggested: number;
+  /** 부모가 확정한 시작 블록 */
+  chosen: number;
+}
+
 export interface ProfileSettings {
   dailyCapMin: number;
   /** 수업을 마친 뒤 별 없이 더 놀 수 있는 시간(분) */
@@ -66,6 +93,9 @@ export interface Profile {
   lastLessonDate: string | null;
   /** 부모가 오늘 수업을 하나 더 열어 준 날짜 */
   extraLessonDate: string | null;
+  /** 실물 보상 요청 기록(최근 것이 뒤) */
+  wishes: WishRequest[];
+  diagnostic: DiagnosticRecord | null;
   seedSalt: number;
   settings: ProfileSettings;
 }
@@ -104,6 +134,8 @@ export function newProfile(init: { id: string; nickname: string; avatar: string;
     reviews: [],
     lastLessonDate: null,
     extraLessonDate: null,
+    wishes: [],
+    diagnostic: null,
     seedSalt: init.seedSalt,
     settings: structuredClone(DEFAULT_SETTINGS),
   };

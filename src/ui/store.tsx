@@ -7,10 +7,20 @@ import { localYmd, parseYmd } from '@/core/dates';
 import { newProfile, type Profile } from '@/core/model';
 import type { GenEnv } from '@/core/question';
 import type { FamilyEvent } from '@/core/types';
+import type { RewardDef } from '@/core/wishes';
 import { getKv, loadProfiles, saveProfile, setKv } from '@/db/repo';
 
 /** n은 같은 화면을 새로 시작할 때(보스 다시 도전 등) 바꿔 주는 값 */
-export type Screen = { name: 'home' } | { name: 'setup' } | { name: 'lesson'; day: number; n?: number } | { name: 'boss'; block: number; n?: number } | { name: 'parent' };
+export type Screen =
+  | { name: 'home' }
+  | { name: 'setup' }
+  | { name: 'lesson'; day: number; n?: number }
+  | { name: 'boss'; block: number; n?: number; skip?: boolean }
+  | { name: 'parent' }
+  | { name: 'stickers' }
+  | { name: 'village'; tab?: 'town' | 'wish' }
+  | { name: 'diagnostic'; n?: number }
+  | { name: 'extra'; n?: number };
 
 export interface VoicePrefs {
   name: string | null;
@@ -24,6 +34,10 @@ interface Store {
   today: string;
   env: GenEnv;
   events: FamilyEvent[];
+  /** 부모가 정한 실물 보상 목록(가족 공통) */
+  rewards: RewardDef[];
+  /** 마지막으로 기록 파일을 내려받은 시각(없으면 0) */
+  lastBackupAt: number;
   voice: VoicePrefs;
   screen: Screen;
   go: (s: Screen, opts?: { replace?: boolean }) => void;
@@ -33,6 +47,10 @@ interface Store {
   selectProfile: (id: string) => void;
   createProfile: (nickname: string, avatar: string) => Promise<Profile>;
   setEvents: (e: FamilyEvent[]) => Promise<void>;
+  setRewards: (r: RewardDef[]) => Promise<void>;
+  markBackup: () => Promise<void>;
+  /** 백업 파일을 불러오거나 프로필을 지운 뒤 저장소를 다시 읽는다. keepScreen이면 지금 화면에 머문다. */
+  reload: (opts?: { keepScreen?: boolean }) => Promise<void>;
   setVoice: (v: VoicePrefs) => Promise<void>;
   /** 뒤로 가기(안드로이드 버튼·브라우저)를 가로챌 때 쓴다. 해제 함수를 돌려준다. */
   guardBack: (fn: () => void) => () => void;
@@ -54,6 +72,8 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   const [activeId, setActiveId] = useState<string | null>(null);
   const [today, setToday] = useState<string>(() => localYmd());
   const [events, setEventsState] = useState<FamilyEvent[]>([]);
+  const [rewards, setRewardsState] = useState<RewardDef[]>([]);
+  const [lastBackupAt, setLastBackupAt] = useState(0);
   const [voice, setVoiceState] = useState<VoicePrefs>({ name: null, rate: 0.92 });
   const [screen, setScreen] = useState<Screen>({ name: 'home' });
 
@@ -63,26 +83,40 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   const backGuard = useRef<(() => void) | null>(null);
 
   // ---- 시작: 저장된 기록 불러오기 ----
+  const loadAll = useCallback(async (): Promise<{ empty: boolean }> => {
+    const [list, active, ev, vp, rw, lb] = await Promise.all([
+      loadProfiles(),
+      getKv<string | null>('activeProfile', null),
+      getKv<FamilyEvent[]>('events', []),
+      getKv<VoicePrefs>('voice', { name: null, rate: 0.92 }),
+      getKv<RewardDef[]>('rewards', []),
+      getKv<number>('lastBackupAt', 0),
+    ]);
+    const id = list.find((p) => p.id === active)?.id ?? list[0]?.id ?? null;
+    profilesRef.current = list;
+    activeRef.current = id;
+    setProfiles(list);
+    setActiveId(id);
+    setEventsState(ev);
+    setVoiceState(vp);
+    setRewardsState(rw);
+    setLastBackupAt(lb);
+    return { empty: list.length === 0 };
+  }, []);
+
   useEffect(() => {
     let alive = true;
     void (async () => {
       initSpeech();
-      const [list, active, ev, vp] = await Promise.all([loadProfiles(), getKv<string | null>('activeProfile', null), getKv<FamilyEvent[]>('events', []), getKv<VoicePrefs>('voice', { name: null, rate: 0.92 })]);
+      const { empty } = await loadAll();
       if (!alive) return;
-      const id = list.find((p) => p.id === active)?.id ?? list[0]?.id ?? null;
-      profilesRef.current = list;
-      activeRef.current = id;
-      setProfiles(list);
-      setActiveId(id);
-      setEventsState(ev);
-      setVoiceState(vp);
-      setScreen(list.length === 0 ? { name: 'setup' } : { name: 'home' });
+      setScreen(empty ? { name: 'setup' } : { name: 'home' });
       setReady(true);
     })();
     return () => {
       alive = false;
     };
-  }, []);
+  }, [loadAll]);
 
   // ---- 날짜가 바뀌면 오늘 날짜를 갱신 ----
   useEffect(() => {
@@ -191,6 +225,27 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     await setKv('events', e);
   }, []);
 
+  const setRewards = useCallback(async (r: RewardDef[]) => {
+    setRewardsState(r);
+    await setKv('rewards', r);
+  }, []);
+
+  const markBackup = useCallback(async () => {
+    const now = Date.now();
+    setLastBackupAt(now);
+    await setKv('lastBackupAt', now);
+  }, []);
+
+  const reload = useCallback(
+    async (opts?: { keepScreen?: boolean }) => {
+      await saving.current;
+      const { empty } = await loadAll();
+      if (empty) setScreen({ name: 'setup' });
+      else if (!opts?.keepScreen) setScreen({ name: 'home' });
+    },
+    [loadAll],
+  );
+
   const setVoice = useCallback(async (v: VoicePrefs) => {
     setVoiceState(v);
     await setKv('voice', v);
@@ -205,6 +260,8 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     today,
     env,
     events,
+    rewards,
+    lastBackupAt,
     voice,
     screen,
     go,
@@ -213,6 +270,9 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     selectProfile,
     createProfile,
     setEvents,
+    setRewards,
+    markBackup,
+    reload,
     setVoice,
     guardBack,
   };

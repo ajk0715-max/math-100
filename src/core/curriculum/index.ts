@@ -2,6 +2,7 @@ import { getSkill } from '../skills';
 import type { GameId } from '../types';
 import { BLOCKS, blockDef } from './blocks';
 import { DAYS_01_05 } from './days-01-05';
+import { DAYS_06_10 } from './days-06-10';
 import type { BossPart, BossSpec, DayDef, IntroCard, Lesson } from './types';
 
 export * from './types';
@@ -12,7 +13,7 @@ export const BLOCK_COUNT = 20;
 export const BLOCK_DAYS = 5;
 
 /** 수업 데이터가 들어 있는 날들. 단계가 구현될 때마다 여기에 이어 붙인다. */
-const AUTHORED: DayDef[] = [...DAYS_01_05];
+const AUTHORED: DayDef[] = [...DAYS_01_05, ...DAYS_06_10];
 
 const DAY_MAP = new Map<number, DayDef>(AUTHORED.map((d) => [d.day, d]));
 
@@ -51,6 +52,11 @@ const BOSS_INTRO: IntroCard[] = [
   { text: '보스 도전! 이번 단계에서 배운 것을 모아서 열다섯 문제를 풀어 볼 거야.' },
   { text: '열두 문제 이상 맞히면 통과야. 못 넘어도 괜찮아, 틀린 곳만 다시 하면 돼!' },
 ];
+/** Day 50: 절반을 지나며 하는 중간 점검 */
+const BOSS_INTRO_MID: IntroCard[] = [
+  { text: '50일 중간 점검 보스야! 지금까지 배운 것을 모아서 열다섯 문제를 풀어 볼 거야.' },
+  { text: '열두 문제 이상 맞히면 통과야. 못 넘어도 괜찮아, 틀린 곳만 다시 하면 돼!' },
+];
 const BOSS_INTRO_FIRST: IntroCard[] = [
   { text: '첫 번째 보스 도전! 지금까지 배운 것으로 열다섯 문제를 풀어 볼 거야.' },
   { text: '열두 문제 이상 맞히면 통과야. 못 넘어도 괜찮아, 틀린 곳만 다시 하면 돼!' },
@@ -69,9 +75,9 @@ export function lessonFor(day: number): Lesson | null {
       block,
       idx,
       kind: 'boss',
-      title: `${b.title} 보스 도전`,
+      title: day === 50 ? `${b.title} 보스 도전 · 중간 점검` : `${b.title} 보스 도전`,
       buddy: 'bear',
-      intro: block === 1 ? BOSS_INTRO_FIRST : BOSS_INTRO,
+      intro: block === 1 ? BOSS_INTRO_FIRST : day === 50 ? BOSS_INTRO_MID : BOSS_INTRO,
       explore: [],
       game: null,
       tip: '보스전은 한 번에 통과하지 못해도 괜찮아요. 틀린 문제 유형만 골라 다시 풀게 되어 있어요.',

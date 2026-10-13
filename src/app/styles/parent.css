@@ -90,3 +90,354 @@
     transform: translate(-50%, 8px);
   }
 }
+
+/* ---------- 탭 ---------- */
+.ptabs {
+  position: sticky;
+  top: calc(var(--safe-t) + 4px);
+  z-index: 15;
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 4px;
+  padding: 4px;
+  background: var(--sheet);
+  border: 2px solid var(--line);
+  border-radius: var(--r-md);
+  box-shadow: var(--lift-sm) var(--line);
+}
+.ptabs button {
+  position: relative;
+  min-height: 2.9rem;
+  border-radius: var(--r-sm);
+  font-family: var(--font-display);
+  font-size: 1.08rem;
+  color: var(--ink-soft);
+}
+.ptabs button[aria-selected='true'] {
+  background: var(--ink);
+  color: #fff;
+}
+.ptabs .pdot {
+  position: absolute;
+  top: 4px;
+  right: 5px;
+  width: 0.7rem;
+  height: 0.7rem;
+  border-radius: 50%;
+  background: var(--tomato);
+  border: 2px solid #fff;
+}
+.ptabs button[aria-selected='false'] .pdot {
+  border-color: var(--sheet);
+}
+
+/* ---------- 공통 조각 ---------- */
+.subtitle {
+  margin-top: 4px;
+  font-size: 1.1rem;
+}
+.stats.two {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+.chip .emo {
+  font-size: 1.1em;
+}
+.chip.inl {
+  margin-left: 8px;
+  vertical-align: middle;
+}
+.lessonline {
+  font-family: var(--font-display);
+  font-size: 1.25rem;
+  line-height: 1.3;
+}
+.tipbox {
+  display: flex;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: var(--r-md);
+  background: var(--sun-l);
+  line-height: 1.55;
+}
+.tipbox .emo {
+  font-size: 1.5rem;
+}
+.midcheck {
+  border-color: var(--sky);
+  box-shadow: var(--lift) var(--sky);
+}
+
+/* 정답률 막대 */
+.ratebars {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.ratebar {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: baseline;
+  gap: 4px 10px;
+}
+.rb-label {
+  font-family: var(--font-display);
+  font-size: 1.05rem;
+}
+.rb-num {
+  font-family: var(--font-display);
+  font-size: 1.05rem;
+}
+.rb-num small {
+  font-family: var(--font-body);
+  font-size: 0.82rem;
+  color: var(--ink-soft);
+}
+.rb-track {
+  grid-column: 1 / -1;
+  height: 10px;
+  overflow: hidden;
+  border-radius: 6px;
+  background: var(--line);
+}
+.rb-track i {
+  display: block;
+  height: 100%;
+  border-radius: 6px;
+  background: var(--tangerine);
+}
+.rb-track.good i {
+  background: var(--leaf);
+}
+.rb-track.mid i {
+  background: var(--sun);
+}
+
+/* 한 줄 목록 */
+.lrows {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.lrow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border: 2px solid var(--line);
+  border-radius: var(--r-md);
+  background: var(--paper);
+}
+.lrow > .emo {
+  flex: none;
+  font-size: 1.9rem;
+  line-height: 1;
+}
+.lrow .lmain {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+.lrow .lmain b {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: 1.1rem;
+  line-height: 1.25;
+}
+.lrow .lmain small {
+  font-size: 0.88rem;
+  color: var(--ink-soft);
+}
+.lrow .lact {
+  display: flex;
+  gap: 8px;
+}
+.lrow.wrap {
+  flex-wrap: wrap;
+}
+.lrow.wrap .lact {
+  flex-basis: 100%;
+  justify-content: flex-end;
+}
+.lrow.pending {
+  border-color: var(--sun);
+  background: #fffaf0;
+}
+.lrow.now {
+  border-color: var(--leaf);
+  background: var(--leaf-l);
+}
+
+/* 입력 묶음 */
+.editor {
+  padding: 12px;
+  border: 2px dashed var(--line);
+  border-radius: var(--r-md);
+}
+.field small {
+  font-size: 0.88rem;
+  color: var(--ink-soft);
+}
+.emojis {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 8px;
+}
+.emoji {
+  aspect-ratio: 1;
+  display: grid;
+  place-items: center;
+  border-radius: var(--r-sm);
+  background: var(--sheet);
+  border: 2px solid var(--line);
+  font-size: 1.6rem;
+}
+.emoji.on {
+  background: var(--sun-l);
+  border-color: var(--sun-d);
+  box-shadow: var(--lift-sm) var(--sun-d);
+}
+.stepper {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  gap: 8px;
+  align-items: center;
+}
+.stepper input {
+  min-height: 3.4rem;
+  min-width: 0;
+  padding: 0.5rem 0.9rem;
+  border: 2px solid var(--line);
+  border-radius: var(--r-md);
+  background: var(--sheet);
+  font-size: 1.3rem;
+  text-align: center;
+  color: var(--ink);
+}
+.days {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 6px;
+}
+.days button {
+  min-height: 3rem;
+  border-radius: var(--r-sm);
+  background: var(--paper);
+  border: 2px solid var(--line);
+  font-family: var(--font-display);
+  font-size: 1.1rem;
+}
+.days button.on {
+  background: var(--leaf);
+  border-color: var(--leaf-d);
+  color: #fff;
+  box-shadow: var(--lift-sm) var(--leaf-d);
+}
+
+/* ---------- 진도 지도 ---------- */
+.pmap {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.pblock {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 0;
+  border: 2px solid var(--line);
+  border-radius: var(--r-md);
+  background: var(--paper);
+}
+.pblock > .pb-head {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 10px 12px;
+  border-radius: var(--r-md);
+  text-align: left;
+}
+.pblock > .pb-head:disabled {
+  cursor: default;
+}
+.pblock.sel {
+  box-shadow: var(--lift-sm) var(--line);
+}
+.pblock .bnum {
+  flex: none;
+  width: 2rem;
+  height: 2rem;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--ink);
+  color: #fff;
+  font-family: var(--font-display);
+  font-size: 1.05rem;
+}
+.pblock .lmain {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+.pblock .lmain b {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: 1.1rem;
+  line-height: 1.25;
+}
+.pblock .lmain small {
+  font-size: 0.88rem;
+  color: var(--ink-soft);
+}
+.pblock.current {
+  border-color: var(--sky);
+  background: var(--sky-l);
+}
+.pblock.current .bnum {
+  background: var(--sky-d);
+}
+.pblock.gold,
+.pblock.passed,
+.pblock.skipped {
+  border-color: var(--leaf);
+  background: var(--leaf-l);
+}
+.pblock.soon {
+  border-style: dashed;
+  opacity: 0.6;
+}
+.pb-act {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 0 12px 12px;
+}
+.pdetails > summary {
+  cursor: pointer;
+  font-family: var(--font-display);
+  font-size: 1.15rem;
+}
+.pdetails[open] > summary {
+  margin-bottom: 12px;
+}
+
+.row.two > .field {
+  min-width: 0;
+}
+.field input[type='time'] {
+  width: 100%;
+  min-width: 0;
+  font-size: 1.1rem;
+}

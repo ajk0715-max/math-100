@@ -71,6 +71,7 @@ export function Match({ q, spec, status, onSubmit, theme }: AnswerProps<'match'>
       <button
         key={side + key}
         type="button"
+        data-key={key}
         className={`mcell ${side}${matched ? ` matched pair-${TONES[idx % TONES.length]}` : ''}${selected ? ' on' : ''}${isBad ? ' is-wrong' : ''}`}
         onClick={() => choose(side, key)}
         disabled={matched}
@@ -82,7 +83,7 @@ export function Match({ q, spec, status, onSubmit, theme }: AnswerProps<'match'>
   };
 
   return (
-    <div className={`match${theme ? ` t-${theme}` : ''}`}>
+    <div className={`match${spec.pairs.length >= 4 ? ' dense' : ''}${theme ? ` t-${theme}` : ''}`}>
       <div className="col">{spec.pairs.map((p) => cell('a', p.key))}</div>
       <div className="col">{order.map((k) => cell('b', k))}</div>
     </div>

@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from 'react';
 
 /** 오른쪽 위 모서리를 2초 동안 꾹 누르면 보호자 화면으로 가는 입구. 아이가 실수로 열지 않게 한다. */
-export function ParentCorner({ onOpen, holdMs = 2000 }: { onOpen: () => void; holdMs?: number }) {
+export function ParentCorner({ onOpen, holdMs = 2000, badge = false }: { onOpen: () => void; holdMs?: number; badge?: boolean }) {
   const [p, setP] = useState(0);
   const raf = useRef<number | null>(null);
   const t0 = useRef(0);
@@ -47,6 +47,7 @@ export function ParentCorner({ onOpen, holdMs = 2000 }: { onOpen: () => void; ho
           <path d="M22 11.5v4M22 28.5v4M11.5 22h4M28.5 22h4M14.6 14.6l2.8 2.8M26.6 26.6l2.8 2.8M14.6 29.4l2.8-2.8M26.6 17.4l2.8-2.8" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" />
         </g>
       </svg>
+      {badge && <i className="pbadge" aria-hidden="true" />}
     </button>
   );
 }

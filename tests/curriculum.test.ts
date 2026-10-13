@@ -61,7 +61,7 @@ describe('날짜 계산', () => {
 describe('수업 데이터', () => {
   const ready = lastReadyDay();
   it('열린 날이 모두 수업으로 풀린다', () => {
-    expect(ready).toBeGreaterThanOrEqual(25);
+    expect(ready).toBeGreaterThanOrEqual(50);
     for (let d = 1; d <= ready; d++) {
       const l = lessonFor(d);
       expect(l, `Day ${d}`).not.toBeNull();
@@ -92,6 +92,8 @@ describe('수업 데이터', () => {
     }
     expect(firstDayOfSkill('num.count5')).toBe(1);
     expect(firstDayOfSkill('cal.weekdayName')).toBe(3);
+    expect(firstDayOfSkill('add.pic5')).toBe(26);
+    expect(firstDayOfSkill('cmp.length')).toBe(46);
   });
   it('제목·부모 팁이 비어 있지 않고 소개 카드가 1~3장', () => {
     for (let d = 1; d <= ready; d++) {
@@ -129,18 +131,33 @@ describe('보스전 구성', () => {
     const b1 = bossSpec(1)!;
     expect(b1.current.reduce((a, p) => a + p.n, 0)).toBe(15);
     expect(b1.previousCount).toBe(0);
-    for (let b = 2; b <= 5; b++) {
+    for (let b = 2; b <= 10; b++) {
       const s = bossSpec(b)!;
       expect(s.current.reduce((a, p) => a + p.n, 0), `블록 ${b}`).toBe(10);
       expect(s.previousCount).toBe(5);
     }
   });
   it('보스에 자기 점검(쓰기) 스킬은 들어가지 않는다', () => {
-    for (let b = 1; b <= 5; b++) {
+    for (let b = 1; b <= 10; b++) {
       const s = bossSpec(b)!;
       for (const p of s.current) expect(getSkill(p.skill).noBoss).toBeFalsy();
     }
     expect(skillsBefore(3)).not.toContain('num.write');
+  });
+  it('보스 문제가 해당 블록 안의 스킬로만 짜인다', () => {
+    for (let b = 2; b <= 10; b++) {
+      const s = bossSpec(b)!;
+      const inBlock = new Set<string>();
+      for (let k = 0; k < 4; k++) for (const u of lessonFor((b - 1) * 5 + 1 + k)!.explore) inBlock.add(u.skill);
+      for (const p of s.current) expect(inBlock.has(p.skill), `블록 ${b}: ${p.skill}`).toBe(true);
+    }
+  });
+  it('Day 50은 중간 점검 보스', () => {
+    const l = lessonFor(50)!;
+    expect(l.kind).toBe('boss');
+    expect(l.title).toContain('중간 점검');
+    const intro = typeof l.intro === 'function' ? l.intro(ENV) : l.intro;
+    expect(intro[0]!.text).toContain('중간 점검');
   });
   it('아직 열리지 않은 블록은 null', () => {
     expect(bossSpec(lastReadyDay() / 5 + 1)).toBeNull();

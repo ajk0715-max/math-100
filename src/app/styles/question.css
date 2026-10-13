@@ -447,6 +447,7 @@
   display: flex;
   flex-direction: column;
   gap: 16px;
+  width: 100%;
 }
 .order .line,
 .order .pool {
@@ -543,6 +544,18 @@
 .order.train .card {
   min-height: 3.5rem;
   border-radius: 8px;
+}
+/* 한 줄 놓기: 막대처럼 폭이 좁은 카드를 모두 한 줄에 둔다 */
+.order.oneline .line,
+.order.oneline .pool {
+  gap: 4px;
+}
+.order.oneline .line {
+  padding: 8px 6px;
+}
+.order.oneline .slot,
+.order.oneline .card {
+  padding: 4px 2px;
 }
 
 /* ---------- 눌러서 찾기 ---------- */
@@ -727,6 +740,25 @@
 }
 .mcell .clock.sm {
   --cs: 5.3rem;
+}
+.mcell .t.sm {
+  font-size: 1.15rem;
+  line-height: 1.15;
+}
+/* 짝이 4개 이상이면 한 화면에 들어가도록 칸을 줄인다 */
+.match.dense .col {
+  gap: 8px;
+}
+.match.dense .mcell {
+  min-height: 4.7rem;
+  padding: 4px;
+}
+.match.dense .mcell .clock.sm {
+  --cs: 4.1rem;
+}
+.match.dense .mcell .emo.big {
+  font-size: 1.7rem;
+  line-height: 1.1;
 }
 .mcell.on {
   background: var(--sky-l);

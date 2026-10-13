@@ -11,6 +11,8 @@ export const GAME_TITLE: Record<GameId, string> = {
   dayCards: '하루 카드',
   weekTrain: '요일 기차',
   dateHunt: '날짜 보물찾기',
+  lineup: '막대 줄 세우기',
+  seesaw: '시소 놀이',
   shop: '마을 가게',
 };
 
@@ -24,6 +26,8 @@ export const GAME_EMOJI: Record<GameId, string> = {
   dayCards: '🗂️',
   weekTrain: '🚂',
   dateHunt: '🗺️',
+  lineup: '📏',
+  seesaw: '⚖️',
   shop: '🏪',
 };
 

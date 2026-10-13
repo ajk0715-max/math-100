@@ -32,7 +32,7 @@ export interface Slot {
 
 export interface Plan {
   day: number;
-  kind: 'lesson' | 'boss';
+  kind: 'lesson' | 'boss' | 'extra';
   /** 같은 날을 다시 풀 때마다 올라가는 번호. 시드가 달라진다. */
   run: number;
   slots: Slot[];
@@ -348,18 +348,23 @@ export function finishLesson(profile: Profile, plan: Plan, today: string, firstO
   };
 }
 
-/** 보스를 통과한 뒤의 프로필 */
-export function finishBoss(profile: Profile, block: number, outcome: BossOutcome, firstAttemptCorrectRate: number, today: string): Profile {
+/**
+ * 보스를 통과한 뒤의 프로필.
+ * skipped는 부모가 연 '건너뛰기 도전'으로 통과한 경우다. 앞의 4일은 하지 않았으므로 마친 날에 넣지 않고 '건너뜀'으로 표시한다.
+ */
+export function finishBoss(profile: Profile, block: number, outcome: BossOutcome, firstAttemptCorrectRate: number, today: string, skipped = false): Profile {
   const day = block * BLOCK_DAYS;
   const prev = profile.blocks[block];
   const fresh = !profile.doneDays.includes(day);
   const gold = firstAttemptCorrectRate >= BOSS_PASS - 1e-9;
   const stars = fresh ? STARS_BOSS : 0;
+  const markSkipped = prev?.skipped || (skipped && !prev?.passedAt);
   const result = {
     tries: (prev?.tries ?? 0) + 1,
     best: Math.max(prev?.best ?? 0, outcome.correct / Math.max(1, outcome.total)),
     passedAt: prev?.passedAt ?? day,
     gold: prev?.gold || gold,
+    ...(markSkipped ? { skipped: true } : {}),
   };
   return {
     ...profile,

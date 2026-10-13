@@ -21,6 +21,12 @@ export function normalizeProfile(p: Profile): Profile {
     settings: { ...DEFAULT_SETTINGS, ...p.settings, optional: { ...DEFAULT_SETTINGS.optional, ...(p.settings?.optional ?? {}) } },
     extraLessonDate: p.extraLessonDate ?? null,
     lastLessonDate: p.lastLessonDate ?? null,
+    wishes: p.wishes ?? [],
+    diagnostic: p.diagnostic ?? null,
+    village: p.village ?? [],
+    stickers: p.stickers ?? {},
+    blocks: p.blocks ?? {},
+    reviews: p.reviews ?? [],
   };
 }
 

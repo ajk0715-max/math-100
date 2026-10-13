@@ -1,9 +1,9 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { say, koVoices, speechSupported } from '@/audio/speech';
 import { sfx, unlockAudio } from '@/audio/sfx';
-import { requestPersistence } from '@/db/repo';
+import { importAll, isBackup, requestPersistence } from '@/db/repo';
 import { setPin } from '@/db/pin';
 import { Buddy } from './Buddy';
 import { canPromptInstall, isStandalone, platform, promptInstall } from './install';
@@ -33,6 +33,8 @@ export function Wizard() {
   const [heard, setHeard] = useState(false);
   const [busy, setBusy] = useState(false);
   const [installMsg, setInstallMsg] = useState<string | null>(null);
+  const fileRef = useRef<HTMLInputElement | null>(null);
+  const [restoreMsg, setRestoreMsg] = useState<string | null>(null);
 
   const plat = typeof window === 'undefined' ? 'other' : platform();
   const skipInstall = typeof window !== 'undefined' && isStandalone();
@@ -93,14 +95,15 @@ export function Wizard() {
     setHeard(true);
   };
 
-  const finish = async () => {
+  /** 아이 프로필을 만들고 홈 또는 시작 진단으로 간다 */
+  const finish = async (to: 'home' | 'diagnostic' = 'home') => {
     setBusy(true);
     try {
       const p = await store.createProfile(nick, avatar);
       store.update((x) => ({ ...x, settings: { ...x.settings, voice: voiceOn, sfx: sfxOn } }));
       void requestPersistence();
       sfx.fanfare();
-      store.go({ name: 'home' }, { replace: true });
+      store.go({ name: to }, { replace: true });
       return p;
     } finally {
       setBusy(false);
@@ -108,6 +111,25 @@ export function Wizard() {
   };
 
   const hasKo = voices.length > 0;
+
+  /** 다른 기기나 예전에 내려받은 기록 파일로 바로 이어서 시작한다 */
+  const restore = async (f: File | undefined) => {
+    setRestoreMsg(null);
+    if (!f) return;
+    try {
+      const data: unknown = JSON.parse(await f.text());
+      if (!isBackup(data) || data.profiles.length === 0) {
+        setRestoreMsg('이 앱의 기록 파일이 아니에요.');
+        return;
+      }
+      await importAll(data);
+      await store.reload();
+    } catch {
+      setRestoreMsg('파일을 읽을 수 없어요. 내려받은 기록 파일이 맞는지 확인해 주세요.');
+    } finally {
+      if (fileRef.current) fileRef.current.value = '';
+    }
+  };
 
   return (
     <main className="app">
@@ -126,6 +148,11 @@ export function Wizard() {
               시작하기
             </button>
             <p className="fine">처음 한 번만 보호자가 설정해요. 기록은 이 기기 안에만 저장돼요.</p>
+            <button type="button" className="btn ghost small" onClick={() => fileRef.current?.click()}>
+              내려받은 기록 파일로 이어서 하기
+            </button>
+            <input ref={fileRef} type="file" accept="application/json,.json" hidden onChange={(e) => void restore(e.target.files?.[0])} />
+            {restoreMsg && <p className="status warn">{restoreMsg}</p>}
           </section>
         )}
 
@@ -281,6 +308,10 @@ export function Wizard() {
             <button type="button" className="btn go block" onClick={() => void finish()} disabled={busy}>
               첫 수업 만나러 가기
             </button>
+            <button type="button" className="btn ghost block" onClick={() => void finish('diagnostic')} disabled={busy}>
+              먼저 실력 확인하기 (약 10분)
+            </button>
+            <p className="fine">이미 아는 내용이 많다면, 12문제로 시작 단계를 정할 수 있어요. 나중에 보호자 메뉴에서도 할 수 있어요.</p>
           </section>
         )}
       </div>

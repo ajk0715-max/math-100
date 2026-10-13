@@ -40,7 +40,16 @@ function visualProblems(v: Visual | undefined, where: string, out: string[]): vo
       v.items.forEach((it, i) => visualProblems(it, `${where}.${i}`, out));
       break;
     case 'bars':
-      if (v.items.length < 2) out.push(`${where}: bars 항목`);
+      if (v.items.length < 1 || v.items.length > 6) out.push(`${where}: bars 항목`);
+      for (const it of v.items) if (!(it.value >= 0) || it.value > (v.unitMax ?? 10)) out.push(`${where}: bars 값 ${it.value}`);
+      break;
+    case 'cells':
+      if (v.cols < 1 || v.rows < 1 || v.cols * v.rows > 40) out.push(`${where}: cells 크기`);
+      if (v.fill !== undefined && (v.fill < 1 || v.fill > v.cols * v.rows)) out.push(`${where}: cells fill`);
+      if (v.fit !== undefined && (v.fit < v.cols || v.fit > 8)) out.push(`${where}: cells fit`);
+      break;
+    case 'seesaw':
+      if (v.left.n > 6 || v.right.n > 6) out.push(`${where}: seesaw 개수`);
       break;
     default:
       break;

@@ -98,6 +98,13 @@ describe('speak(): 화면 글 → 읽어 주는 글', () => {
     expect(speak('5 + 3')).toBe('오 더하기 삼');
     expect(speak('숫자 10 쓰기')).toBe('숫자 십 쓰기');
   });
+  it('식은 등호 앞 말에 은/는을 붙여 읽는다', () => {
+    expect(speak('2 + 1 = 3')).toBe('이 더하기 일은 삼');
+    expect(speak('5 − 2 = 3')).toBe('오 빼기 이는 삼');
+    expect(speak('4 + 3 = 7')).toBe('사 더하기 삼은 칠');
+    expect(speak('9 − 6 = ?')).toBe('구 빼기 육은 ?');
+    expect(speak('3 + ? = 5')).toBe('삼 더하기 ?는 오');
+  });
   it('숫자가 남지 않는다', () => {
     expect(/[0-9]/.test(speak('1, 2, 3, 100, 2026'))).toBe(false);
   });

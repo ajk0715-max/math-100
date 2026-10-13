@@ -1,4 +1,4 @@
-import { chance, int, pick, shuffle } from '../rng';
+import { chance, int, pick, sample, shuffle } from '../rng';
 import { hourKo, josa, timeKo, timeText } from '../ko';
 import type { GenCtx, Option, Question, Visual } from '../types';
 import { buildChoice, mk, numChoice, shuffleDiff, sn } from './util';
@@ -235,5 +235,174 @@ export function daypartGen(c: GenCtx): Question {
     answer: buildChoice(r, correct, opts.filter((o) => o.key !== act.part), parts.length, parts.length === 4 ? 2 : 3),
     hint: { say: '해가 떠 있는지, 지고 있는지, 달이 떴는지 생각해 봐요.' },
     explain: `${PART[act.part].name}이에요.`,
+  });
+}
+
+// ---------------------------------------------------------------------------
+// 몇 시 30분 (정각과 30분 구별, 읽기)
+// ---------------------------------------------------------------------------
+
+const wrap12 = (x: number): number => ((x - 1 + 12) % 12) + 1;
+/** 시계 보기: 시각 말(3시 30분)을 보기로 만든다. 키는 "시:분" */
+export const timeOption = (h: number, m: number): Option => ({ key: `${wrap12(h)}:${m}`, text: timeText(h, m), say: timeKo(h, m) });
+/** 시계 그림 보기. 키는 "시:분" */
+export const clockPick = (h: number, m: number): Option => clockOption(wrap12(h), m, `${wrap12(h)}:${m}`);
+
+/** 정각이면 정각이 아닌 쪽으로, 30분이면 정각 쪽으로 헷갈리기 쉬운 시각들 */
+function nearTimes(h: number, m: number): [number, number][] {
+  return m === 30
+    ? [
+        [wrap12(h + 1), 30],
+        [h, 0],
+        [wrap12(h - 1), 30],
+        [wrap12(h + 1), 0],
+      ]
+    : [
+        [wrap12(h + 1), 0],
+        [wrap12(h - 1), 0],
+        [h, 30],
+        [wrap12(h + 2), 0],
+      ];
+}
+
+/** 정각과 30분 구별: 긴바늘이 12인지 6인지 */
+export function halfSeeGen(c: GenCtx): Question {
+  const r = c.rng;
+  const L = c.level;
+  const h = int(r, 1, 12);
+  const half = chance(r, 0.5);
+  const m = half ? 30 : 0;
+  const hint = {
+    say: '긴바늘이 12에 있으면 몇 시 정각, 6에 있으면 몇 시 30분이에요.',
+    visual: clockVis(h, m, { mark: 'minute', size: 'md' }),
+  };
+  const explain = half ? '긴바늘이 6을 가리켜요. 긴바늘이 6이면 30분이에요.' : '긴바늘이 12를 가리켜요. 긴바늘이 12이면 정각이에요.';
+  if (L === 1) {
+    const opts: Option[] = [
+      { key: '12', text: '12', say: '십이' },
+      { key: '6', text: '6', say: '육' },
+    ];
+    return mk(c, {
+      prompt: '긴바늘은 어느 숫자를 가리키고 있을까요?',
+      say: '긴바늘은 어느 숫자를 가리키고 있을까요?',
+      visual: clockVis(h, m, { mark: 'minute', size: 'lg' }),
+      answer: buildChoice(r, opts[half ? 1 : 0] as Option, [opts[half ? 0 : 1] as Option], 2, 2),
+      hint,
+      explain,
+    });
+  }
+  if (L === 2) {
+    const opts: Option[] = [
+      { key: 'hour', text: '정각', say: '정각' },
+      { key: 'half', text: '30분', say: '삼십 분' },
+    ];
+    return mk(c, {
+      prompt: '이 시계는 정각일까요, 30분일까요?',
+      say: '이 시계는 정각일까요, 삼십 분일까요?',
+      visual: clockVis(h, m, { size: 'lg' }),
+      answer: buildChoice(r, opts[half ? 1 : 0] as Option, [opts[half ? 0 : 1] as Option], 2, 2),
+      hint,
+      explain,
+    });
+  }
+  const askHalf = chance(r, 0.6);
+  const hours = sample(r, [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12], 4);
+  const mins = shuffle(r, askHalf ? [30, 30, 0, 0] : [0, 0, 30, 30]);
+  const items = hours.map((hh, i) => ({ key: `c${i}`, visual: clockVis(hh, mins[i] as number, { size: 'sm' }), say: timeKo(hh, mins[i] as number) }));
+  const targets = items.filter((_, i) => (mins[i] === 30) === askHalf).map((it) => it.key);
+  const word = askHalf ? '30분' : '정각';
+  return mk(c, {
+    prompt: `${word}인 시계를 모두 찾아 눌러 보세요.`,
+    say: `${word === '30분' ? '삼십 분' : '정각'}인 시계를 모두 찾아 눌러 보세요.`,
+    answer: { t: 'tapTargets', items, targets, cols: 2, need: 'all' },
+    hint: { say: '긴바늘이 12에 있는지, 6에 있는지 하나씩 살펴봐요.' },
+    explain: askHalf ? '긴바늘이 6에 있는 시계가 30분이에요.' : '긴바늘이 12에 있는 시계가 정각이에요.',
+  });
+}
+
+/** 몇 시 30분 읽기. mix면 정각도 섞는다. */
+export function halfReadGen(cfg: { hours: number[]; mix?: boolean }) {
+  return (c: GenCtx): Question => {
+    const r = c.rng;
+    const L = c.level;
+    const h = pick(r, cfg.hours);
+    const m = cfg.mix && chance(r, 0.4) ? 0 : 30;
+    const tt = timeText(h, m);
+    const next = wrap12(h + 1);
+    const hint = {
+      say:
+        m === 30
+          ? '긴바늘이 6에 있어서 30분이에요. 짧은바늘이 두 숫자 사이에 있으면 지나간 숫자를 읽어요.'
+          : '긴바늘이 12에 있으면 몇 시 정각이에요. 짧은바늘이 가리키는 숫자를 읽어요.',
+      visual: clockVis(h, m, { mark: 'hour', size: 'md' }),
+    };
+    const explain =
+      m === 30
+        ? `짧은바늘이 ${h}${josa(String(h), '과/와')} ${next} 사이에 있고 긴바늘이 6에 있어서 ${tt}${josa(tt, '이에요/예요')}.`
+        : `짧은바늘이 ${h}에 있고 긴바늘이 12에 있어서 ${tt}${josa(tt, '이에요/예요')}.`;
+    const wrongs = nearTimes(h, m).map(([hh, mm]) => timeOption(hh, mm));
+
+    if (L === 1) {
+      const ask = cfg.mix ? '지금은 몇 시일까요?' : '지금은 몇 시 30분일까요?';
+      return mk(c, {
+        prompt: ask,
+        say: ask,
+        visual: clockVis(h, m, { size: 'lg' }),
+        answer: buildChoice(r, timeOption(h, m), wrongs, 3),
+        hint,
+        explain,
+      });
+    }
+    if (L === 2) {
+      return mk(c, {
+        prompt: `${tt}${josa(tt, '을/를')} 나타내는 시계는 어느 것일까요?`,
+        say: `${tt}${josa(tt, '을/를')} 나타내는 시계는 어느 것일까요?`,
+        answer: buildChoice(r, clockPick(h, m), nearTimes(h, m).map(([hh, mm]) => clockPick(hh, mm)), 3, 3),
+        hint,
+        explain,
+      });
+    }
+    if (chance(r, 0.5)) {
+      return mk(c, {
+        prompt: '디지털 시계와 같은 시각을 나타내는 시계는 어느 것일까요?',
+        say: '디지털 시계와 같은 시각을 나타내는 시계는 어느 것일까요?',
+        visual: { k: 'digital', h, m },
+        answer: buildChoice(r, clockPick(h, m), nearTimes(h, m).map(([hh, mm]) => clockPick(hh, mm)), 3, 3),
+        hint,
+        explain,
+      });
+    }
+    return mk(c, {
+      prompt: '숫자가 없는 시계예요. 몇 시일까요?',
+      say: '숫자가 없는 시계예요. 몇 시일까요?',
+      visual: clockVis(h, m, { numbers: false, size: 'lg' }),
+      answer: buildChoice(r, timeOption(h, m), wrongs, 3),
+      hint: { ...hint, visual: clockVis(h, m, { numbers: true, mark: 'hour', size: 'md' }) },
+      explain,
+    });
+  };
+}
+
+/** 보너스 게임: 정각 또는 30분인 시계를 모두 눌러 터뜨리기 */
+export function halfTapGen(c: GenCtx): Question {
+  const r = c.rng;
+  const L = c.level;
+  const n = L === 1 ? 4 : 6;
+  const askHalf = chance(r, 0.6);
+  const hitN = n === 4 ? 2 : int(r, 2, 3);
+  const hours = sample(r, [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12], n);
+  const hitMin = askHalf ? 30 : 0;
+  const otherMin = askHalf ? 0 : 30;
+  const mins = shuffle(r, [...Array.from({ length: hitN }, () => hitMin), ...Array.from({ length: n - hitN }, () => otherMin)]);
+  const items = hours.map((hh, i) => ({ key: `c${i}`, visual: clockVis(hh, mins[i] as number, { size: 'sm' }), say: timeKo(hh, mins[i] as number) }));
+  const targets = items.filter((_, i) => mins[i] === hitMin).map((it) => it.key);
+  const word = askHalf ? '30분' : '정각';
+  const text = `${word}인 시계를 모두 터뜨려 보세요.`;
+  return mk(c, {
+    prompt: text,
+    say: askHalf ? '삼십 분인 시계를 모두 터뜨려 보세요.' : text,
+    answer: { t: 'tapTargets', items, targets, cols: n === 4 ? 2 : 3, need: 'all' },
+    hint: { say: '긴바늘이 12에 있는지, 6에 있는지 하나씩 살펴봐요.' },
+    explain: askHalf ? '긴바늘이 6에 있는 시계가 30분이에요.' : '긴바늘이 12에 있는 시계가 정각이에요.',
   });
 }

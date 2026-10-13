@@ -1,0 +1,278 @@
+/* 비교하기·일과 그림: 막대, 시소, 칸 모양, 일과표 */
+
+/* ---------- 막대 ---------- */
+.bars {
+  --max: 10;
+  width: min(100%, 22rem);
+}
+.bars .fill {
+  display: block;
+  background: var(--tone, var(--sky));
+}
+.bars .val {
+  position: absolute;
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: 0.95rem;
+  color: var(--ink);
+}
+
+/* 가로: 왼쪽 시작선을 맞춘다 */
+.bars.h {
+  display: grid;
+  gap: 0.6rem;
+}
+.bars.h .bar {
+  display: grid;
+  grid-template-columns: 5.4rem minmax(0, 1fr);
+  align-items: center;
+  gap: 0.6rem;
+}
+.bars .blabel {
+  font-family: var(--font-display);
+  font-size: 1rem;
+  line-height: 1.15;
+  color: var(--ink);
+}
+.bars.h .blabel {
+  text-align: right;
+}
+.bars.h .track {
+  position: relative;
+  display: flex;
+  align-items: center;
+  height: 1.7rem;
+  border-left: 4px solid var(--ink);
+}
+.bars.h .fill {
+  height: 100%;
+  width: calc(var(--val) / var(--max) * 100%);
+  border-radius: 0 12px 12px 0;
+  box-shadow: var(--lift-sm) var(--tone-d, var(--sky-d));
+}
+.bars.h .val {
+  left: calc(var(--val) / var(--max) * 100% + 0.5rem);
+}
+
+/* 세로: 바닥선을 맞춘다 */
+.bars.v {
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  gap: 1rem;
+  height: 10.5rem;
+  padding: 0 0.6rem;
+  margin-bottom: 1.9rem;
+  border-bottom: 4px solid var(--ink);
+  width: min(100%, 20rem);
+}
+.bars.v .bar {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  align-items: center;
+  height: 100%;
+  width: 3.2rem;
+}
+.bars.v .track {
+  position: relative;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+}
+.bars.v .fill {
+  width: 100%;
+  height: calc(var(--val) / var(--max) * 100%);
+  border-radius: 12px 12px 0 0;
+}
+.bars.v .blabel {
+  position: absolute;
+  top: calc(100% + 0.35rem);
+  width: 5.2rem;
+  text-align: center;
+  font-size: 0.85rem;
+}
+.bars.v .val {
+  bottom: calc(var(--val) / var(--max) * 100% + 0.2rem);
+}
+
+/* 칸 세기용 눈금 */
+.bars.grid.h .fill {
+  background-image: repeating-linear-gradient(90deg, transparent 0, transparent calc(100% / var(--val) - 3px), rgb(255 255 255 / 0.8) calc(100% / var(--val) - 3px), rgb(255 255 255 / 0.8) calc(100% / var(--val)));
+}
+.bars.grid.v .fill {
+  background-image: repeating-linear-gradient(0deg, transparent 0, transparent calc(100% / var(--val) - 3px), rgb(255 255 255 / 0.8) calc(100% / var(--val) - 3px), rgb(255 255 255 / 0.8) calc(100% / var(--val)));
+}
+
+/* 막대 하나만 있는 카드(줄 세우기 놀이) */
+.bars.solo.v {
+  width: min(3rem, 100%);
+  height: 6.4rem;
+  margin: 0.2rem auto 0;
+  padding: 0;
+  gap: 0;
+}
+.bars.solo.v .bar {
+  width: 100%;
+}
+
+/* ---------- 시소 ---------- */
+.seesaw {
+  --sw: min(15rem, 82vw);
+  position: relative;
+  width: var(--sw);
+  height: calc(var(--sw) * 0.58);
+  flex: none;
+}
+.viz-row .seesaw {
+  --sw: min(10.6rem, 42vw);
+}
+.seesaw .plank {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: calc(var(--sw) * 0.15);
+  height: calc(var(--sw) * 0.05);
+  border-radius: 999px;
+  background: var(--tangerine);
+  box-shadow: var(--lift-sm) var(--tangerine-d);
+  transition: transform 0.4s var(--ease-pop);
+}
+.seesaw .side {
+  position: absolute;
+  bottom: 100%;
+  width: 46%;
+  display: flex;
+  justify-content: center;
+}
+.seesaw .side.l {
+  left: 0;
+}
+.seesaw .side.r {
+  right: 0;
+}
+.seesaw .pan {
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  font-size: calc(var(--sw) * 0.19);
+  line-height: 1;
+}
+.seesaw.m2 .pan {
+  font-size: calc(var(--sw) * 0.16);
+}
+.seesaw.m3 .pan {
+  font-size: calc(var(--sw) * 0.135);
+}
+.seesaw.m4 .pan {
+  font-size: calc(var(--sw) * 0.115);
+}
+.seesaw .unk {
+  display: grid;
+  place-items: center;
+  width: 1.2em;
+  height: 1.2em;
+  border: 3px dashed var(--tangerine);
+  border-radius: 12px;
+  font-family: var(--font-display);
+  font-size: 0.8em;
+  color: var(--tangerine-d);
+}
+.seesaw .pivot {
+  position: absolute;
+  left: 50%;
+  bottom: 0;
+  width: 0;
+  height: 0;
+  transform: translateX(-50%);
+  border-left: calc(var(--sw) * 0.1) solid transparent;
+  border-right: calc(var(--sw) * 0.1) solid transparent;
+  border-bottom: calc(var(--sw) * 0.17) solid var(--ink-soft);
+}
+
+/* ---------- 칸 모양(넓이) ---------- */
+/* 눌러 고르는 칸(타일) 안에서도 넘치지 않게, 감싼 상자의 너비에 맞춰 한 칸 크기를 정한다 */
+.sqbox {
+  container-type: inline-size;
+  display: flex;
+  justify-content: center;
+  width: 100%;
+}
+.sqcells {
+  --gap: 2px;
+  --cell: min(1.55rem, calc((100cqw - (var(--fit) - 1) * var(--gap)) / var(--fit)));
+  display: grid;
+  grid-template-columns: repeat(var(--cols), var(--cell));
+  gap: var(--gap);
+}
+.sqcells .sq {
+  display: grid;
+  place-items: center;
+  width: var(--cell);
+  height: var(--cell);
+  border-radius: 4px;
+  font-style: normal;
+  font-family: var(--font-display);
+  font-size: calc(var(--cell) * 0.55);
+  line-height: 1;
+}
+.sqcells .sq.on {
+  background: var(--tone, var(--sky));
+  box-shadow: inset 0 -3px 0 rgb(0 0 0 / 0.14);
+  color: #fff;
+}
+.sqcells .sq.off {
+  background: transparent;
+}
+
+/* ---------- 하루 일과표 ---------- */
+.routine {
+  display: grid;
+  gap: 0.4rem;
+  width: min(100%, 22rem);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.routine li {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  min-height: 2.6rem;
+  padding: 0.2rem 0.8rem 0.2rem 0.5rem;
+  border: 2px solid var(--line);
+  border-radius: 14px;
+  background: var(--sheet);
+}
+.routine .rt {
+  flex: none;
+  min-width: 4.9rem;
+  padding: 0.1rem 0.5rem;
+  border-radius: 10px;
+  background: var(--sun-l);
+  box-shadow: inset 0 0 0 2px var(--sun);
+  font-family: var(--font-display);
+  font-size: 1.05rem;
+  text-align: center;
+  color: var(--ink);
+}
+.routine .re {
+  flex: none;
+  font-size: 1.55rem;
+}
+.routine .rl {
+  font-family: var(--font-display);
+  font-size: 1.05rem;
+  line-height: 1.2;
+}
+
+/* ---------- 물음표 칸 ---------- */
+.eq .t.q {
+  background: var(--sun-l);
+  color: #8a6500;
+  box-shadow: inset 0 0 0 3px var(--sun);
+  border-radius: 16px;
+}
